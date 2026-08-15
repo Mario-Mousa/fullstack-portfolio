@@ -1,5 +1,27 @@
 {
   "version": "7",
   "dialect": "mysql",
-  "entries": []
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1786759829793,
+      "tag": "0000_lush_randall_flagg",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1786759978330,
+      "tag": "0001_brief_timeslip",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1786760616042,
+      "tag": "0002_luxuriant_eddie_brock",
+      "breakpoints": true
+    }
+  ]
 }
