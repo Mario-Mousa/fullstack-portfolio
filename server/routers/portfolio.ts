@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { nanoid } from "nanoid";
 import { z } from "zod";
 import * as db from "../db";
-import { ENV } from "../_core/env";
+import { isOwnerAccount } from "../ownerIdentity";
 import { protectedProcedure, publicProcedure, router } from "../_core/trpc";
 import { storagePut } from "../storage";
 
@@ -49,8 +49,9 @@ export const cvUploadInput = z.object({
   contentType: z.literal("application/pdf"),
 });
 
-const ownerProcedure = protectedProcedure.use(({ ctx, next }) => {
-  if (ctx.user.role !== "admin" || ctx.user.openId !== ENV.ownerOpenId) {
+const ownerProcedure = protectedProcedure.use(async ({ ctx, next }) => {
+  const profile = await db.getAdminProfile();
+  if (!isOwnerAccount(ctx.user, profile?.email)) {
     throw new TRPCError({ code: "FORBIDDEN", message: "Owner access is required." });
   }
   return next();

@@ -109,8 +109,14 @@ Published verification completed after the deployment refresh: the public domain
 
 Credential-rejection follow-up: the owner secret was explicitly refreshed and the lightweight login endpoint test passed. The restarted development service now loads the credential form normally; the next step verifies the same values through the rendered fields.
 
+Direct published-domain diagnosis later established that the password was valid, but session provisioning returned `User openId is required for upsert` because the production `OWNER_OPEN_ID` was unavailable. The correction resolves the persisted administrator record's OpenID first, uses the environment value only for a first-run fallback, and authorizes dashboard actions through the stored administrator role plus matching profile email.
+
 Live credential verification completed: submitting the owner email and configured password through the rendered login form redirected successfully to `/admin` and loaded the owner dashboard with the expected overview cards.
 
 The supplied recording confirms that the user entered the expected email and the password `[REDACTED]`, then received the generic rejection while remaining on the published login page. The same published login screen has now been loaded for direct reproduction against the production server.
 
 Published reproduction completed: the same email and password are accepted by the restarted development server but rejected by the published endpoint. This isolates the defect to the production credential configuration or production-only server environment, not client-side field entry or the credential form.
+
+The updated production release has reached the published login form after centralizing and normalizing the password environment value. A fresh live credential attempt is now underway against that release.
+
+Direct production diagnosis identified the actual failure: the published `dashboard.login` request returns HTTP 500 with `User openId is required for upsert`. The password passed verification; the production server lacks a usable `OWNER_OPEN_ID`, so session provisioning fails after credential validation. The correction must derive the owner session identity from persisted owner data or provide a safe fallback rather than relying solely on that unavailable environment value.

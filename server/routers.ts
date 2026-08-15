@@ -8,6 +8,7 @@ import { sdk } from "./_core/sdk";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
 import * as db from "./db";
+import { isOwnerAccount, normalizeOwnerEmail, resolveOwnerOpenId } from "./ownerIdentity";
 import { adminRouter, portfolioRouter } from "./routers/portfolio";
 
 const dashboardLoginInput = z.object({ email: z.string().trim().email().max(320), password: z.string().min(1).max(256) });
@@ -22,9 +23,10 @@ function passwordsMatch(candidate: string, expected: string) {
 export const appRouter = router({
   system: systemRouter,
   auth: router({
-    me: publicProcedure.query(opts => {
+    me: publicProcedure.query(async opts => {
       if (!opts.ctx.user) return null;
-      return { ...opts.ctx.user, isOwner: opts.ctx.user.openId === ENV.ownerOpenId && opts.ctx.user.role === "admin" };
+      const profile = await db.getAdminProfile();
+      return { ...opts.ctx.user, isOwner: isOwnerAccount(opts.ctx.user, profile?.email) };
     }),
     logout: publicProcedure.mutation(({ ctx }) => {
       ctx.res.clearCookie(COOKIE_NAME, { ...getSessionCookieOptions(ctx.req), maxAge: -1 });
@@ -38,12 +40,17 @@ export const appRouter = router({
         throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid dashboard credentials." });
       }
       const profile = await db.getAdminProfile();
-      const ownerEmail = profile?.email?.trim().toLowerCase();
-      if (!ownerEmail || input.email.trim().toLowerCase() !== ownerEmail) {
+      const ownerEmail = normalizeOwnerEmail(profile?.email);
+      if (!ownerEmail || normalizeOwnerEmail(input.email) !== ownerEmail) {
         throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid dashboard credentials." });
       }
-      await db.upsertUser({ openId: ENV.ownerOpenId, name: profile?.nameEn || "Portfolio Owner", email: ownerEmail, loginMethod: "dashboard-password", role: "admin", lastSignedIn: new Date() });
-      const token = await sdk.createSessionToken(ENV.ownerOpenId, { expiresInMs: DASHBOARD_SESSION_MS, name: profile?.nameEn || "Portfolio Owner" });
+      const existingOwner = await db.getUserByEmail(ownerEmail);
+      const ownerOpenId = resolveOwnerOpenId(existingOwner?.openId, ENV.ownerOpenId);
+      if (!ownerOpenId) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Owner session identity is not configured." });
+      }
+      await db.upsertUser({ openId: ownerOpenId, name: profile?.nameEn || "Portfolio Owner", email: ownerEmail, loginMethod: "dashboard-password", role: "admin", lastSignedIn: new Date() });
+      const token = await sdk.createSessionToken(ownerOpenId, { expiresInMs: DASHBOARD_SESSION_MS, name: profile?.nameEn || "Portfolio Owner" });
       ctx.res.cookie(COOKIE_NAME, token, { ...getSessionCookieOptions(ctx.req), maxAge: DASHBOARD_SESSION_MS });
       return { success: true } as const;
     }),
