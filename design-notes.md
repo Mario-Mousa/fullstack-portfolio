@@ -110,3 +110,7 @@ Published verification completed after the deployment refresh: the public domain
 Credential-rejection follow-up: the owner secret was explicitly refreshed and the lightweight login endpoint test passed. The restarted development service now loads the credential form normally; the next step verifies the same values through the rendered fields.
 
 Live credential verification completed: submitting the owner email and configured password through the rendered login form redirected successfully to `/admin` and loaded the owner dashboard with the expected overview cards.
+
+The supplied recording confirms that the user entered the expected email and the password `[REDACTED]`, then received the generic rejection while remaining on the published login page. The same published login screen has now been loaded for direct reproduction against the production server.
+
+Published reproduction completed: the same email and password are accepted by the restarted development server but rejected by the published endpoint. This isolates the defect to the production credential configuration or production-only server environment, not client-side field entry or the credential form.

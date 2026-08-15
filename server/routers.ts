@@ -33,7 +33,7 @@ export const appRouter = router({
   }),
   dashboard: router({
     login: publicProcedure.input(dashboardLoginInput).mutation(async ({ input, ctx }) => {
-      const configuredPassword = process.env.DASHBOARD_LOGIN_PASSWORD ?? "";
+      const configuredPassword = ENV.dashboardLoginPassword;
       if (!configuredPassword || !passwordsMatch(input.password, configuredPassword)) {
         throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid dashboard credentials." });
       }
