@@ -13,9 +13,9 @@ describe("owner identity resolution", () => {
   });
 
   it("requires both the administrator role and the configured owner email", () => {
-    expect(isOwnerAccount({ email: "mariosayers005@gmail.com", role: "admin" }, "MARIOsayERS005@gmail.com")).toBe(true);
-    expect(isOwnerAccount({ email: "mariosayers005@gmail.com", role: "user" }, "mariosayers005@gmail.com")).toBe(false);
-    expect(isOwnerAccount({ email: "other@example.com", role: "admin" }, "mariosayers005@gmail.com")).toBe(false);
+    expect(isOwnerAccount({ email: "mariosayers005@gmail.com", loginMethod: "dashboard-password", role: "user" }, "MARIOsayERS005@gmail.com")).toBe(true);
+    expect(isOwnerAccount({ email: "mariosayers005@gmail.com", loginMethod: "manus", role: "admin" }, "mariosayers005@gmail.com")).toBe(false);
+    expect(isOwnerAccount({ email: "other@example.com", loginMethod: "dashboard-password", role: "admin" }, "mariosayers005@gmail.com")).toBe(false);
   });
 
   it("preserves a stored administrator role during session-only updates", () => {

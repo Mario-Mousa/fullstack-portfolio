@@ -1,5 +1,6 @@
 export type OwnerAccount = {
   email: string | null;
+  loginMethod: string | null;
   role: string;
 };
 
@@ -18,7 +19,7 @@ export function resolveOwnerOpenId(
 
 export function isOwnerAccount(account: OwnerAccount, ownerEmail: string | null | undefined) {
   const normalizedOwnerEmail = normalizeOwnerEmail(ownerEmail);
-  return account.role === "admin" && Boolean(normalizedOwnerEmail) && normalizeOwnerEmail(account.email) === normalizedOwnerEmail;
+  return account.loginMethod === "dashboard-password" && Boolean(normalizedOwnerEmail) && normalizeOwnerEmail(account.email) === normalizedOwnerEmail;
 }
 
 export function resolveRoleWrite(

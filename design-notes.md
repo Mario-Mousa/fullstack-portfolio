@@ -115,6 +115,8 @@ After publishing the database-backed correction, the development login passed fr
 
 The fresh backend served the corrected login request successfully, but the dashboard remained restricted. Session diagnostics showed why: routine session validation upserted the existing owner record without a role, and the database helper treated absent `OWNER_OPEN_ID` as a reason to reset that record to `user`. The helper now preserves an existing role during ordinary session-heartbeat updates, while explicit dashboard-login upserts continue to set the owner record to `admin`.
 
+Further production diagnostics showed a platform-authentication layer may still report the owner record with the default `user` role despite a persisted promotion. The owner guard therefore now relies on two stable, application-controlled facts: the active session maps to the configured owner email and was explicitly minted by the password login flow (`dashboard-password`). This removes the unavailable external role configuration from the owner authorization decision while retaining the server-side credential gate.
+
 Live credential verification completed: submitting the owner email and configured password through the rendered login form redirected successfully to `/admin` and loaded the owner dashboard with the expected overview cards.
 
 The supplied recording confirms that the user entered the expected email and the password `[REDACTED]`, then received the generic rejection while remaining on the published login page. The same published login screen has now been loaded for direct reproduction against the production server.
