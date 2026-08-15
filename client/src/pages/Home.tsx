@@ -1,5 +1,6 @@
 import { useTheme } from "@/contexts/ThemeContext";
 import { trpc } from "@/lib/trpc";
+import { applyPortfolioLanguageToDocument, nextPortfolioLanguage, toPortfolioLanguage, type PortfolioLanguage } from "@/lib/portfolioLanguage";
 import BrandLoader from "@/components/BrandLoader";
 import ProfileLightbox from "@/components/ProfileLightbox";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
@@ -54,7 +55,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<TabId>("about");
   const [form, setForm] = useState({ senderName: "", senderEmail: "", subject: "", body: "" });
   const { data, isLoading, isError, refetch } = trpc.portfolio.publicData.useQuery();
-  const language = i18n.language.startsWith("ar") ? "ar" : "en";
+  const [language, setLanguage] = useState<PortfolioLanguage>(() => toPortfolioLanguage(i18n.resolvedLanguage ?? i18n.language));
   const isArabic = language === "ar";
 
   const message = trpc.portfolio.sendMessage.useMutation({
@@ -69,9 +70,14 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    document.documentElement.lang = language;
-    document.documentElement.dir = isArabic ? "rtl" : "ltr";
-  }, [isArabic, language]);
+    applyPortfolioLanguageToDocument(language);
+  }, [language]);
+
+  useEffect(() => {
+    const syncLanguageState = (nextLanguage: string) => setLanguage(toPortfolioLanguage(nextLanguage));
+    i18n.on("languageChanged", syncLanguageState);
+    return () => i18n.off("languageChanged", syncLanguageState);
+  }, [i18n]);
 
   useEffect(() => {
     const syncTabWithUrl = () => {
@@ -85,12 +91,12 @@ export default function Home() {
     return () => { window.removeEventListener("popstate", syncTabWithUrl); window.removeEventListener("hashchange", syncTabWithUrl); };
   }, []);
 
-  const changeLanguage = async () => {
-    const next = isArabic ? "en" : "ar";
+  const changeLanguage = () => {
+    const next = nextPortfolioLanguage(language);
+    setLanguage(next);
     localStorage.setItem("portfolio-language", next);
-    await i18n.changeLanguage(next);
-    document.documentElement.lang = next;
-    document.documentElement.dir = next === "ar" ? "rtl" : "ltr";
+    applyPortfolioLanguageToDocument(next);
+    void i18n.changeLanguage(next).catch(() => toast.error("Could not switch the portfolio language. Please try again."));
   };
 
   const selectTab = (tabId: TabId) => {

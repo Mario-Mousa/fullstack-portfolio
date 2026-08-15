@@ -55,3 +55,4 @@
 - [x] Verify correct and incorrect credentials, sign-out, About language switching, and responsive layout before saving the update checkpoint.
 - [x] Re-verify the widened About view and owner credential screen at a narrow/mobile viewport after the final updates.
 - [x] Save and publish the final verified credential-login and About-layout checkpoint.
+- [x] Diagnose and fix the About language switch when changing from English to Arabic, then verify it in the live portfolio flow.

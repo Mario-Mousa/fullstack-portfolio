@@ -49,3 +49,9 @@ Narrow-viewport capture confirmed the authenticated dashboard reduces to a compa
 The interactive About route successfully rendered after its intended brief loader, preserving the single wide English biography, active About tab, identity rail, and bilingual switch. The mobile-screen capture limitation affects only the automated full-page public-page snapshot, not this interactive rendering.
 
 Final mobile verification used a controlled 375 × 812 viewport after the loader completed. About rendered the stacked identity card, horizontally scrollable tab navigator, compact top bar, and active About content without horizontal page overflow. The `/admin/login` credential form rendered as a single readable card with full-width email/password inputs, password visibility control, submit action, and return link. The evidence captures are retained in the sandbox screenshots directory.
+
+Follow-up language-switch investigation: the published domain redirected this sandbox browser session through the platform sign-in gate, so the interactive diagnosis continues against the same live development build used for implementation verification.
+
+Direct in-page diagnostics on the About view confirmed that the current handler can switch from `en`/LTR to `ar`/RTL and persist `portfolio-language=ar` in development. The follow-up correction will make the visible language state explicitly React-controlled and apply the document direction before the async i18n transition, removing any reliance on delayed external language events.
+
+Post-fix verification completed in the About tab: Arabic switched to English with `en`/LTR persisted, then English switched back to Arabic with `ar`/RTL persisted. The visible action label updated at each step, and the active About tab was retained throughout.
