@@ -40,3 +40,7 @@
 - [x] Refine the public animated background into a lightweight network/constellation atmosphere with reduced-motion fallback.
 - [x] Apply the visual system consistently to public surfaces, controls, project and credential cards, and dashboard surfaces.
 - [x] Verify dark/light, English/Arabic RTL/LTR, desktop/mobile behavior, and save the polished update checkpoint.
+- [x] Replace long-scroll public sections with one active, URL-synchronized tab panel at a time.
+- [x] Add active-tab styling and smooth fade/slide transitions across header, rail, and mobile navigation controls.
+- [x] Keep the desktop identity rail sticky and visually balanced while stacking it above tab content on narrow screens.
+- [x] Re-verify the tabbed workspace on mobile, in dark theme, and with the profile lightbox after the layout refactor, then save the update checkpoint.

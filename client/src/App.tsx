@@ -28,7 +28,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setLoading(false), 1180);
+    const timer = window.setTimeout(() => setLoading(false), 1650);
     return () => window.clearTimeout(timer);
   }, []);
 
