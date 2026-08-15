@@ -301,6 +301,7 @@ function ProfileEditor() {
   const utils = trpc.useUtils();
   const { data, isLoading } = trpc.admin.profile.get.useQuery();
   const [form, setForm] = useState(blankProfile);
+  const [saveState, setSaveState] = useState<"idle" | "saved">("idle");
   useEffect(() => {
     if (data)
       setForm({
@@ -334,12 +335,18 @@ function ProfileEditor() {
     onSuccess: () => {
       utils.admin.profile.get.invalidate();
       utils.portfolio.publicData.invalidate();
+      setSaveState("saved");
       toast.success("Profile saved.");
     },
-    onError: () => toast.error("Profile could not be saved."),
+    onError: () => {
+      setSaveState("idle");
+      toast.error("Profile could not be saved.");
+    },
   });
-  const set = (key: keyof typeof form, value: string) =>
+  const set = (key: keyof typeof form, value: string) => {
+    setSaveState("idle");
     setForm(current => ({ ...current, [key]: value }));
+  };
   const handleSave = () =>
     save.mutate({
       ...form,
@@ -364,14 +371,23 @@ function ProfileEditor() {
         title="Profile and public links."
         copy="This is the source of truth for your public introduction, skills, and social presence."
         actions={
-          <Button
-            className="admin-button"
-            onClick={handleSave}
-            disabled={isLoading || save.isPending}
-          >
-            <Save size={16} />
-            {save.isPending ? "Saving…" : "Save profile"}
-          </Button>
+          <>
+            <span
+              className="admin-save-status"
+              role="status"
+              aria-live="polite"
+            >
+              {saveState === "saved" ? "Saved" : ""}
+            </span>
+            <Button
+              className="admin-button"
+              onClick={handleSave}
+              disabled={isLoading || save.isPending}
+            >
+              <Save size={16} />
+              {save.isPending ? "Saving…" : "Save profile"}
+            </Button>
+          </>
         }
       />
       <div className="profile-layout">

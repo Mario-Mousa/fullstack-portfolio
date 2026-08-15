@@ -1115,7 +1115,17 @@ a {
   line-height: 1.65;
 }
 .admin-title-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
   flex: none;
+}
+.admin-save-status {
+  min-width: 3.4rem;
+  color: var(--teal);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
 }
 .admin-button {
   display: inline-flex;

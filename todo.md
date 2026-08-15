@@ -62,8 +62,9 @@
 - [x] Audit portfolio components and server contracts for dead code, duplicated responsibilities, and avoidable coupling; apply focused design-pattern and SOLID-oriented cleanup.
 - [x] Review and test public navigation, language/theme controls, photo modal, contact form, dashboard login/logout, dashboard CRUD inputs, and upload/output paths.
 - [x] Run type, regression, interaction, and production-build checks; address identified performance or reliability regressions before publishing.
-- [ ] Re-audit the remaining Home/Admin/style structure and apply or document focused responsibility boundaries.
+- [x] Re-audit the remaining Home/Admin/style structure and apply or document focused responsibility boundaries.
 - [x] Browser-test public contact validation, one non-destructive dashboard save flow, and one upload input/output flow after the refactor.
-- [ ] Capture visible success evidence and persisted output for the current profile-save mutation after the refactor.
-- [ ] Run a reversible real upload verification and restore the original profile asset after confirming the returned output path.
-- [ ] Reduce or document the remaining large public bundle before the final review checkpoint.
+- [x] Capture visible success evidence and persisted output for the current profile-save mutation after the refactor.
+- [x] Run a reversible real upload verification and restore the original profile asset after confirming the returned output path.
+- [x] Reduce or document the remaining large public bundle before the final review checkpoint.
+- [x] Capture durable visible success evidence for a profile save after the refactor, adding a stable saved-state indicator if the toast is too brief.
