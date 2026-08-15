@@ -3644,11 +3644,12 @@ html[dir="rtl"] .signal-garden h3 {
   min-height: calc(100vh - 2.5rem);
 }
 .signal-garden .identity-rail {
-  height: min(940px, calc(100vh - 2.5rem));
+  height: auto;
   min-height: 0;
 }
 .signal-garden .identity-card {
-  min-height: 0;
+  flex: 0 0 auto;
+  min-height: clamp(860px, calc(100vh + 5rem), 1040px);
 }
 .signal-garden .tab-panel {
   min-height: calc(100vh - 2.5rem);
