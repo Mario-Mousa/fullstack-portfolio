@@ -24,3 +24,7 @@
 - [x] Diagnose the profile-save failure triggered after CV upload and capture its server validation details.
 - [x] Fix the profile save payload or persistence contract for uploaded CV metadata.
 - [x] Re-test the owner profile save procedure with an uploaded-CV storage path and save a repaired checkpoint.
+- [x] Analyze the provided reference site and define a distinct visual direction for the public portfolio.
+- [x] Redesign the public navigation, hero, section rhythm, cards, and footer without changing the database content model.
+- [x] Add a performant ambient animated background with reduced-motion support.
+- [x] Verify the redesigned public portfolio on desktop and mobile, then save an updated checkpoint.

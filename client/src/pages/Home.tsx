@@ -90,10 +90,11 @@ export default function Home() {
   if (isError) return <main className="load-error"><div className="load-error-card glass-panel"><Code2 size={28} /><h1>{t("portfolio.loadError")}</h1><button className="primary-button" onClick={() => refetch()}>{t("portfolio.retry")}<ArrowUpRight size={17} /></button></div></main>;
 
   return (
-    <main className="portfolio-shell">
+    <main className="portfolio-shell signal-garden">
+      <div className="ambient-field" aria-hidden="true"><div className="ambient-orb ambient-orb-a" /><div className="ambient-orb ambient-orb-b" /><div className="ambient-orb ambient-orb-c" /><div className="ambient-grid" /><div className="ambient-stars" /></div>
       <div className="grain" aria-hidden="true" />
       <header className={`topbar ${scrolled ? "topbar-scrolled" : ""}`}>
-        <a href="#top" className="brand" aria-label="Portfolio home"><span className="brand-mark">&lt;/&gt;</span><span>{name || "Portfolio"}</span></a>
+        <a href="#top" className="brand" aria-label="Portfolio home"><span className="brand-mark brand-monogram" aria-hidden="true"><i /><i /><i /></span><span>{name || "Portfolio"}</span></a>
         <nav className="desktop-nav" aria-label="Main navigation">
           {navItems.map(item => <a key={item} href={`#${item}`}>{t(`nav.${item}`)}</a>)}
         </nav>
@@ -120,10 +121,10 @@ export default function Home() {
         </Reveal>
         <Reveal delay={0.12} className="hero-visual">
           <div className="profile-composition">
-            <div className="orbit orbit-one" /><div className="orbit orbit-two" />
+            <div className="orbit orbit-one" /><div className="orbit orbit-two" /><div className="orbit orbit-three" />
             <div className="portrait-card glass-panel">
               {profile?.avatarUrl ? <img src={profile.avatarUrl} alt={name || "Profile"} /> : <div className="avatar-fallback"><span>{initials}</span></div>}
-              <div className="portrait-meta"><span>01 / PROFILE</span><strong>{headline || ""}</strong></div>
+              <div className="portrait-meta"><span>01 / PROFILE</span><strong>{headline || ""}</strong><i /></div>
             </div>
             <div className="floating-chip chip-code"><Code2 size={16} /><span>.NET / React</span></div>
             <div className="floating-chip chip-db"><Database size={16} /><span>DB-first</span></div>
@@ -167,7 +168,7 @@ export default function Home() {
         </div></Reveal>
       </section>
 
-      <footer className="footer section-shell"><a href="#top" className="brand"><span className="brand-mark">&lt;/&gt;</span><span>{name || "Portfolio"}</span></a><p>{t("footer.built")}</p><div className="footer-links">{profile?.cvUrl ? <a href={profile.cvUrl} download className="footer-dashboard">{t("footer.downloadCv")}<Download size={15} /></a> : null}<a href="/admin" className="footer-dashboard">{t("footer.dashboard")}<ArrowUpRight size={15} /></a></div></footer>
+      <footer className="footer section-shell"><a href="#top" className="brand"><span className="brand-mark brand-monogram" aria-hidden="true"><i /><i /><i /></span><span>{name || "Portfolio"}</span></a><p>{t("footer.built")}</p><div className="footer-links">{profile?.cvUrl ? <a href={profile.cvUrl} download className="footer-dashboard">{t("footer.downloadCv")}<Download size={15} /></a> : null}<a href="/admin" className="footer-dashboard">{t("footer.dashboard")}<ArrowUpRight size={15} /></a></div></footer>
     </main>
   );
 }
