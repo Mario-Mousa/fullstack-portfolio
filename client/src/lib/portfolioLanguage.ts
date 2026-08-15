@@ -4,7 +4,9 @@ export function toPortfolioLanguage(value?: string | null): PortfolioLanguage {
   return value?.toLowerCase().startsWith("ar") ? "ar" : "en";
 }
 
-export function nextPortfolioLanguage(current: PortfolioLanguage): PortfolioLanguage {
+export function nextPortfolioLanguage(
+  current: PortfolioLanguage
+): PortfolioLanguage {
   return current === "ar" ? "en" : "ar";
 }
 

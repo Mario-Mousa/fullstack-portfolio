@@ -5,106 +5,1126 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
+import { readFileAsBase64, validateUploadFile } from "@/lib/fileUpload";
 import ProfileLightbox from "@/components/ProfileLightbox";
-import { BadgeCheck, Check, ChevronRight, CircleAlert, Download, Eye, FileImage, FileText, FolderKanban, ImageUp, Inbox, LayoutDashboard, Mail, Pencil, Plus, Save, Trash2, UserRound, X } from "lucide-react";
+import {
+  BadgeCheck,
+  Check,
+  ChevronRight,
+  CircleAlert,
+  Download,
+  Eye,
+  FileImage,
+  FileText,
+  FolderKanban,
+  ImageUp,
+  Inbox,
+  Mail,
+  Pencil,
+  Plus,
+  Save,
+  Trash2,
+  UserRound,
+  X,
+} from "lucide-react";
 import { ChangeEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useLocation } from "wouter";
 
-const blankProject = { titleEn: "", titleAr: "", descriptionEn: "", descriptionAr: "", techStack: "", imageUrl: "", imageKey: "", githubUrl: "", liveUrl: "", featured: false, sortOrder: 0 };
-const blankCertificate = { titleEn: "", titleAr: "", issuer: "", issuedAt: "", credentialUrl: "", imageUrl: "", imageKey: "", sortOrder: 0 };
-const blankProfile = { nameEn: "", nameAr: "", availabilityEn: "", availabilityAr: "", headlineEn: "", headlineAr: "", bioEn: "", bioAr: "", locationEn: "", locationAr: "", educationEn: "", educationAr: "", trainingEn: "", trainingAr: "", avatarUrl: "", avatarKey: "", skills: "", githubUrl: "", linkedinUrl: "", email: "", phone: "", instagramUrl: "", cvUrl: "", cvKey: "" };
+const blankProject = {
+  titleEn: "",
+  titleAr: "",
+  descriptionEn: "",
+  descriptionAr: "",
+  techStack: "",
+  imageUrl: "",
+  imageKey: "",
+  githubUrl: "",
+  liveUrl: "",
+  featured: false,
+  sortOrder: 0,
+};
+const blankCertificate = {
+  titleEn: "",
+  titleAr: "",
+  issuer: "",
+  issuedAt: "",
+  credentialUrl: "",
+  imageUrl: "",
+  imageKey: "",
+  sortOrder: 0,
+};
+const blankProfile = {
+  nameEn: "",
+  nameAr: "",
+  availabilityEn: "",
+  availabilityAr: "",
+  headlineEn: "",
+  headlineAr: "",
+  bioEn: "",
+  bioAr: "",
+  locationEn: "",
+  locationAr: "",
+  educationEn: "",
+  educationAr: "",
+  trainingEn: "",
+  trainingAr: "",
+  avatarUrl: "",
+  avatarKey: "",
+  skills: "",
+  githubUrl: "",
+  linkedinUrl: "",
+  email: "",
+  phone: "",
+  instagramUrl: "",
+  cvUrl: "",
+  cvKey: "",
+};
 
-function AdminTitle({ eyebrow, title, copy, actions }: { eyebrow: string; title: string; copy: string; actions?: React.ReactNode }) {
-  return <header className="admin-title"><div><p className="eyebrow"><span />{eyebrow}</p><h1>{title}</h1><p>{copy}</p></div>{actions ? <div className="admin-title-actions">{actions}</div> : null}</header>;
+function AdminTitle({
+  eyebrow,
+  title,
+  copy,
+  actions,
+}: {
+  eyebrow: string;
+  title: string;
+  copy: string;
+  actions?: React.ReactNode;
+}) {
+  return (
+    <header className="admin-title">
+      <div>
+        <p className="eyebrow">
+          <span />
+          {eyebrow}
+        </p>
+        <h1>{title}</h1>
+        <p>{copy}</p>
+      </div>
+      {actions ? <div className="admin-title-actions">{actions}</div> : null}
+    </header>
+  );
 }
 
-function S3ImageUpload({ onUploaded, compact = false }: { onUploaded: (file: { url: string; key: string }) => void; compact?: boolean }) {
-  const upload = trpc.admin.media.uploadImage.useMutation({ onSuccess: data => { onUploaded(data); toast.success("Image uploaded to secure storage."); }, onError: () => toast.error("The image could not be uploaded.") });
-  const handleFile = (event: ChangeEvent<HTMLInputElement>) => {
+function S3ImageUpload({
+  onUploaded,
+  compact = false,
+}: {
+  onUploaded: (file: { url: string; key: string }) => void;
+  compact?: boolean;
+}) {
+  const upload = trpc.admin.media.uploadImage.useMutation({
+    onSuccess: data => {
+      onUploaded(data);
+      toast.success("Image uploaded to secure storage.");
+    },
+    onError: () => toast.error("The image could not be uploaded."),
+  });
+  const handleFile = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    if (!(["image/jpeg", "image/png", "image/webp"] as string[]).includes(file.type) || file.size > 4 * 1024 * 1024) { toast.error("Use a PNG, JPEG, or WebP image no larger than 4 MB."); return; }
-    const reader = new FileReader();
-    reader.onload = () => { const raw = String(reader.result).split(",")[1]; if (raw) upload.mutate({ base64: raw, fileName: file.name, contentType: file.type as "image/jpeg" | "image/png" | "image/webp" }); };
-    reader.readAsDataURL(file);
+    if (
+      !validateUploadFile(
+        file,
+        ["image/jpeg", "image/png", "image/webp"],
+        4 * 1024 * 1024
+      )
+    ) {
+      toast.error("Use a PNG, JPEG, or WebP image no larger than 4 MB.");
+      return;
+    }
+    try {
+      upload.mutate({
+        base64: await readFileAsBase64(file),
+        fileName: file.name,
+        contentType: file.type as "image/jpeg" | "image/png" | "image/webp",
+      });
+    } catch {
+      toast.error("The image could not be read.");
+    }
   };
-  return <label className={`upload-control ${compact ? "upload-control-compact" : ""}`}><ImageUp size={16} /><span>{upload.isPending ? "Uploading…" : "Upload image"}</span><input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleFile} disabled={upload.isPending} /></label>;
+  return (
+    <label
+      className={`upload-control ${compact ? "upload-control-compact" : ""}`}
+    >
+      <ImageUp size={16} />
+      <span>{upload.isPending ? "Uploading…" : "Upload image"}</span>
+      <input
+        type="file"
+        accept="image/png,image/jpeg,image/webp"
+        onChange={handleFile}
+        disabled={upload.isPending}
+      />
+    </label>
+  );
 }
 
-function S3CvUpload({ onUploaded }: { onUploaded: (file: { url: string; key: string }) => void }) {
-  const upload = trpc.admin.media.uploadCv.useMutation({ onSuccess: data => { onUploaded(data); toast.success("CV uploaded. It is ready for public download."); }, onError: () => toast.error("The CV could not be uploaded.") });
-  const handleFile = (event: ChangeEvent<HTMLInputElement>) => {
+function S3CvUpload({
+  onUploaded,
+}: {
+  onUploaded: (file: { url: string; key: string }) => void;
+}) {
+  const upload = trpc.admin.media.uploadCv.useMutation({
+    onSuccess: data => {
+      onUploaded(data);
+      toast.success("CV uploaded. It is ready for public download.");
+    },
+    onError: () => toast.error("The CV could not be uploaded."),
+  });
+  const handleFile = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    if (file.type !== "application/pdf" || file.size > 8 * 1024 * 1024) { toast.error("Use a PDF file no larger than 8 MB."); return; }
-    const reader = new FileReader();
-    reader.onload = () => { const raw = String(reader.result).split(",")[1]; if (raw) upload.mutate({ base64: raw, fileName: file.name, contentType: "application/pdf" }); };
-    reader.readAsDataURL(file);
+    if (!validateUploadFile(file, ["application/pdf"], 8 * 1024 * 1024)) {
+      toast.error("Use a PDF file no larger than 8 MB.");
+      return;
+    }
+    try {
+      upload.mutate({
+        base64: await readFileAsBase64(file),
+        fileName: file.name,
+        contentType: "application/pdf",
+      });
+    } catch {
+      toast.error("The CV could not be read.");
+    }
   };
-  return <label className="upload-control"><FileText size={16} /><span>{upload.isPending ? "Uploading CV…" : "Upload CV (PDF)"}</span><input type="file" accept="application/pdf,.pdf" onChange={handleFile} disabled={upload.isPending} /></label>;
+  return (
+    <label className="upload-control">
+      <FileText size={16} />
+      <span>{upload.isPending ? "Uploading CV…" : "Upload CV (PDF)"}</span>
+      <input
+        type="file"
+        accept="application/pdf,.pdf"
+        onChange={handleFile}
+        disabled={upload.isPending}
+      />
+    </label>
+  );
 }
 
 function Overview() {
   const [, setLocation] = useLocation();
   const { data, isLoading, isError } = trpc.admin.overview.useQuery();
   const cards = [
-    { label: "Projects", value: data?.projectCount ?? 0, icon: FolderKanban, path: "/admin/projects", accent: "teal" },
-    { label: "Certificates", value: data?.certificateCount ?? 0, icon: BadgeCheck, path: "/admin/certificates", accent: "navy" },
-    { label: "Unread messages", value: data?.unreadCount ?? 0, icon: Mail, path: "/admin/messages", accent: "amber" },
+    {
+      label: "Projects",
+      value: data?.projectCount ?? 0,
+      icon: FolderKanban,
+      path: "/admin/projects",
+      accent: "teal",
+    },
+    {
+      label: "Certificates",
+      value: data?.certificateCount ?? 0,
+      icon: BadgeCheck,
+      path: "/admin/certificates",
+      accent: "navy",
+    },
+    {
+      label: "Unread messages",
+      value: data?.unreadCount ?? 0,
+      icon: Mail,
+      path: "/admin/messages",
+      accent: "amber",
+    },
   ];
-  return <><AdminTitle eyebrow="CONTROL ROOM" title="Portfolio at a glance." copy="Manage what visitors see, review incoming messages, and keep your work current." actions={<a className="admin-button admin-button-quiet" href="/" target="_blank" rel="noreferrer"><Eye size={16} />View public site</a>} />
-    {isError ? <div className="admin-notice"><CircleAlert size={18} />Your account is not authorized to access this workspace.</div> : <div className="overview-grid">{cards.map(card => <button key={card.label} className={`overview-card overview-${card.accent}`} onClick={() => setLocation(card.path)}><div><span>{card.label}</span><strong>{isLoading ? "—" : card.value}</strong></div><card.icon size={25} /><ChevronRight size={17} className="overview-arrow" /></button>)}</div>}
-    <section className="admin-quick-start"><div><p className="eyebrow"><span />NEXT STEP</p><h2>Keep the public site current.</h2><p>Update your profile and add project visuals when you are ready. Every change is saved directly to the portfolio database.</p></div><div className="quick-actions"><button onClick={() => setLocation("/admin/profile")}><UserRound size={16} />Edit profile</button><button onClick={() => setLocation("/admin/projects")}><Plus size={16} />Add a project</button></div></section></>;
+  return (
+    <>
+      <AdminTitle
+        eyebrow="CONTROL ROOM"
+        title="Portfolio at a glance."
+        copy="Manage what visitors see, review incoming messages, and keep your work current."
+        actions={
+          <a
+            className="admin-button admin-button-quiet"
+            href="/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <Eye size={16} />
+            View public site
+          </a>
+        }
+      />
+      {isError ? (
+        <div className="admin-notice">
+          <CircleAlert size={18} />
+          Your account is not authorized to access this workspace.
+        </div>
+      ) : (
+        <div className="overview-grid">
+          {cards.map(card => (
+            <button
+              key={card.label}
+              className={`overview-card overview-${card.accent}`}
+              onClick={() => setLocation(card.path)}
+            >
+              <div>
+                <span>{card.label}</span>
+                <strong>{isLoading ? "—" : card.value}</strong>
+              </div>
+              <card.icon size={25} />
+              <ChevronRight size={17} className="overview-arrow" />
+            </button>
+          ))}
+        </div>
+      )}
+      <section className="admin-quick-start">
+        <div>
+          <p className="eyebrow">
+            <span />
+            NEXT STEP
+          </p>
+          <h2>Keep the public site current.</h2>
+          <p>
+            Update your profile and add project visuals when you are ready.
+            Every change is saved directly to the portfolio database.
+          </p>
+        </div>
+        <div className="quick-actions">
+          <button onClick={() => setLocation("/admin/profile")}>
+            <UserRound size={16} />
+            Edit profile
+          </button>
+          <button onClick={() => setLocation("/admin/projects")}>
+            <Plus size={16} />
+            Add a project
+          </button>
+        </div>
+      </section>
+    </>
+  );
 }
 
 function ProfileEditor() {
   const utils = trpc.useUtils();
   const { data, isLoading } = trpc.admin.profile.get.useQuery();
   const [form, setForm] = useState(blankProfile);
-  useEffect(() => { if (data) setForm({ nameEn: data.nameEn, nameAr: data.nameAr, availabilityEn: data.availabilityEn, availabilityAr: data.availabilityAr, headlineEn: data.headlineEn, headlineAr: data.headlineAr, bioEn: data.bioEn, bioAr: data.bioAr, locationEn: data.locationEn, locationAr: data.locationAr, educationEn: data.educationEn, educationAr: data.educationAr, trainingEn: data.trainingEn, trainingAr: data.trainingAr, avatarUrl: data.avatarUrl ?? "", avatarKey: data.avatarKey ?? "", skills: data.skills.join(", "), githubUrl: data.githubUrl ?? "", linkedinUrl: data.linkedinUrl ?? "", email: data.email ?? "", phone: data.phone ?? "", instagramUrl: data.instagramUrl ?? "", cvUrl: data.cvUrl ?? "", cvKey: data.cvKey ?? "" }); }, [data]);
-  const save = trpc.admin.profile.update.useMutation({ onSuccess: () => { utils.admin.profile.get.invalidate(); utils.portfolio.publicData.invalidate(); toast.success("Profile saved."); }, onError: () => toast.error("Profile could not be saved.") });
-  const set = (key: keyof typeof form, value: string) => setForm(current => ({ ...current, [key]: value }));
-  const handleSave = () => save.mutate({ ...form, avatarUrl: form.avatarUrl || null, avatarKey: form.avatarKey || null, githubUrl: form.githubUrl, linkedinUrl: form.linkedinUrl, email: form.email, phone: form.phone, instagramUrl: form.instagramUrl, cvUrl: form.cvUrl, cvKey: form.cvKey || null, skills: form.skills.split(",").map(skill => skill.trim()).filter(Boolean) });
-  return <><AdminTitle eyebrow="IDENTITY" title="Profile and public links." copy="This is the source of truth for your public introduction, skills, and social presence." actions={<Button className="admin-button" onClick={handleSave} disabled={isLoading || save.isPending}><Save size={16} />{save.isPending ? "Saving…" : "Save profile"}</Button>} />
-    <div className="profile-layout"><section className="profile-media-panel admin-panel"><p className="admin-panel-label">PROFILE PHOTO</p><ProfileLightbox className="profile-photo-preview" imageUrl={form.avatarUrl} name={form.nameEn || "Profile"} title={form.headlineEn} initials={form.nameEn.slice(0, 1) || "P"} /><S3ImageUpload onUploaded={file => setForm(current => ({ ...current, avatarUrl: file.url, avatarKey: file.key }))} /><p>PNG, JPEG, or WebP, up to 4 MB. Images are stored in secure object storage.</p><div className="cv-upload-panel"><p className="admin-panel-label">PUBLIC CV</p><S3CvUpload onUploaded={file => setForm(current => ({ ...current, cvUrl: file.url, cvKey: file.key }))} />{form.cvUrl ? <a href={form.cvUrl} target="_blank" rel="noreferrer" className="cv-current-link"><Download size={14} />View current CV</a> : <span className="field-hint">No CV uploaded yet.</span>}</div></section>
-      <section className="admin-panel profile-form"><div className="form-grid"><Field label="Name — English"><Input value={form.nameEn} onChange={event => set("nameEn", event.target.value)} /></Field><Field label="Name — Arabic"><Input dir="rtl" value={form.nameAr} onChange={event => set("nameAr", event.target.value)} /></Field><Field label="Availability — English"><Input value={form.availabilityEn} onChange={event => set("availabilityEn", event.target.value)} /></Field><Field label="Availability — Arabic"><Input dir="rtl" value={form.availabilityAr} onChange={event => set("availabilityAr", event.target.value)} /></Field><Field label="Headline — English"><Input value={form.headlineEn} onChange={event => set("headlineEn", event.target.value)} /></Field><Field label="Headline — Arabic"><Input dir="rtl" value={form.headlineAr} onChange={event => set("headlineAr", event.target.value)} /></Field><Field label="Location — English"><Input value={form.locationEn} onChange={event => set("locationEn", event.target.value)} /></Field><Field label="Location — Arabic"><Input dir="rtl" value={form.locationAr} onChange={event => set("locationAr", event.target.value)} /></Field><Field label="Education — English"><Input value={form.educationEn} onChange={event => set("educationEn", event.target.value)} /></Field><Field label="Education — Arabic"><Input dir="rtl" value={form.educationAr} onChange={event => set("educationAr", event.target.value)} /></Field><Field label="Training — English"><Input value={form.trainingEn} onChange={event => set("trainingEn", event.target.value)} /></Field><Field label="Training — Arabic"><Input dir="rtl" value={form.trainingAr} onChange={event => set("trainingAr", event.target.value)} /></Field></div><Field label="Bio — English"><Textarea rows={5} value={form.bioEn} onChange={event => set("bioEn", event.target.value)} /></Field><Field label="Bio — Arabic"><Textarea rows={5} dir="rtl" value={form.bioAr} onChange={event => set("bioAr", event.target.value)} /></Field><Field label="Technical skills"><Input value={form.skills} placeholder="C#, ASP.NET Core, React" onChange={event => set("skills", event.target.value)} /><span className="field-hint">Separate skills with commas.</span></Field><div className="form-grid"><Field label="GitHub URL"><Input type="url" value={form.githubUrl} onChange={event => set("githubUrl", event.target.value)} /></Field><Field label="LinkedIn URL"><Input type="url" value={form.linkedinUrl} onChange={event => set("linkedinUrl", event.target.value)} /></Field><Field label="Instagram URL"><Input type="url" value={form.instagramUrl} onChange={event => set("instagramUrl", event.target.value)} /></Field><Field label="Public email"><Input type="email" value={form.email} onChange={event => set("email", event.target.value)} /></Field><Field label="Public phone"><Input type="tel" value={form.phone} placeholder="+20 10 0000 0000" onChange={event => set("phone", event.target.value)} /></Field><Field label="CV URL"><Input type="url" value={form.cvUrl} onChange={event => set("cvUrl", event.target.value)} /></Field></div></section></div></>;
+  useEffect(() => {
+    if (data)
+      setForm({
+        nameEn: data.nameEn,
+        nameAr: data.nameAr,
+        availabilityEn: data.availabilityEn,
+        availabilityAr: data.availabilityAr,
+        headlineEn: data.headlineEn,
+        headlineAr: data.headlineAr,
+        bioEn: data.bioEn,
+        bioAr: data.bioAr,
+        locationEn: data.locationEn,
+        locationAr: data.locationAr,
+        educationEn: data.educationEn,
+        educationAr: data.educationAr,
+        trainingEn: data.trainingEn,
+        trainingAr: data.trainingAr,
+        avatarUrl: data.avatarUrl ?? "",
+        avatarKey: data.avatarKey ?? "",
+        skills: data.skills.join(", "),
+        githubUrl: data.githubUrl ?? "",
+        linkedinUrl: data.linkedinUrl ?? "",
+        email: data.email ?? "",
+        phone: data.phone ?? "",
+        instagramUrl: data.instagramUrl ?? "",
+        cvUrl: data.cvUrl ?? "",
+        cvKey: data.cvKey ?? "",
+      });
+  }, [data]);
+  const save = trpc.admin.profile.update.useMutation({
+    onSuccess: () => {
+      utils.admin.profile.get.invalidate();
+      utils.portfolio.publicData.invalidate();
+      toast.success("Profile saved.");
+    },
+    onError: () => toast.error("Profile could not be saved."),
+  });
+  const set = (key: keyof typeof form, value: string) =>
+    setForm(current => ({ ...current, [key]: value }));
+  const handleSave = () =>
+    save.mutate({
+      ...form,
+      avatarUrl: form.avatarUrl || null,
+      avatarKey: form.avatarKey || null,
+      githubUrl: form.githubUrl,
+      linkedinUrl: form.linkedinUrl,
+      email: form.email,
+      phone: form.phone,
+      instagramUrl: form.instagramUrl,
+      cvUrl: form.cvUrl,
+      cvKey: form.cvKey || null,
+      skills: form.skills
+        .split(",")
+        .map(skill => skill.trim())
+        .filter(Boolean),
+    });
+  return (
+    <>
+      <AdminTitle
+        eyebrow="IDENTITY"
+        title="Profile and public links."
+        copy="This is the source of truth for your public introduction, skills, and social presence."
+        actions={
+          <Button
+            className="admin-button"
+            onClick={handleSave}
+            disabled={isLoading || save.isPending}
+          >
+            <Save size={16} />
+            {save.isPending ? "Saving…" : "Save profile"}
+          </Button>
+        }
+      />
+      <div className="profile-layout">
+        <section className="profile-media-panel admin-panel">
+          <p className="admin-panel-label">PROFILE PHOTO</p>
+          <ProfileLightbox
+            className="profile-photo-preview"
+            imageUrl={form.avatarUrl}
+            name={form.nameEn || "Profile"}
+            title={form.headlineEn}
+            initials={form.nameEn.slice(0, 1) || "P"}
+          />
+          <S3ImageUpload
+            onUploaded={file =>
+              setForm(current => ({
+                ...current,
+                avatarUrl: file.url,
+                avatarKey: file.key,
+              }))
+            }
+          />
+          <p>
+            PNG, JPEG, or WebP, up to 4 MB. Images are stored in secure object
+            storage.
+          </p>
+          <div className="cv-upload-panel">
+            <p className="admin-panel-label">PUBLIC CV</p>
+            <S3CvUpload
+              onUploaded={file =>
+                setForm(current => ({
+                  ...current,
+                  cvUrl: file.url,
+                  cvKey: file.key,
+                }))
+              }
+            />
+            {form.cvUrl ? (
+              <a
+                href={form.cvUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="cv-current-link"
+              >
+                <Download size={14} />
+                View current CV
+              </a>
+            ) : (
+              <span className="field-hint">No CV uploaded yet.</span>
+            )}
+          </div>
+        </section>
+        <section className="admin-panel profile-form">
+          <div className="form-grid">
+            <Field label="Name — English">
+              <Input
+                value={form.nameEn}
+                onChange={event => set("nameEn", event.target.value)}
+              />
+            </Field>
+            <Field label="Name — Arabic">
+              <Input
+                dir="rtl"
+                value={form.nameAr}
+                onChange={event => set("nameAr", event.target.value)}
+              />
+            </Field>
+            <Field label="Availability — English">
+              <Input
+                value={form.availabilityEn}
+                onChange={event => set("availabilityEn", event.target.value)}
+              />
+            </Field>
+            <Field label="Availability — Arabic">
+              <Input
+                dir="rtl"
+                value={form.availabilityAr}
+                onChange={event => set("availabilityAr", event.target.value)}
+              />
+            </Field>
+            <Field label="Headline — English">
+              <Input
+                value={form.headlineEn}
+                onChange={event => set("headlineEn", event.target.value)}
+              />
+            </Field>
+            <Field label="Headline — Arabic">
+              <Input
+                dir="rtl"
+                value={form.headlineAr}
+                onChange={event => set("headlineAr", event.target.value)}
+              />
+            </Field>
+            <Field label="Location — English">
+              <Input
+                value={form.locationEn}
+                onChange={event => set("locationEn", event.target.value)}
+              />
+            </Field>
+            <Field label="Location — Arabic">
+              <Input
+                dir="rtl"
+                value={form.locationAr}
+                onChange={event => set("locationAr", event.target.value)}
+              />
+            </Field>
+            <Field label="Education — English">
+              <Input
+                value={form.educationEn}
+                onChange={event => set("educationEn", event.target.value)}
+              />
+            </Field>
+            <Field label="Education — Arabic">
+              <Input
+                dir="rtl"
+                value={form.educationAr}
+                onChange={event => set("educationAr", event.target.value)}
+              />
+            </Field>
+            <Field label="Training — English">
+              <Input
+                value={form.trainingEn}
+                onChange={event => set("trainingEn", event.target.value)}
+              />
+            </Field>
+            <Field label="Training — Arabic">
+              <Input
+                dir="rtl"
+                value={form.trainingAr}
+                onChange={event => set("trainingAr", event.target.value)}
+              />
+            </Field>
+          </div>
+          <Field label="Bio — English">
+            <Textarea
+              rows={5}
+              value={form.bioEn}
+              onChange={event => set("bioEn", event.target.value)}
+            />
+          </Field>
+          <Field label="Bio — Arabic">
+            <Textarea
+              rows={5}
+              dir="rtl"
+              value={form.bioAr}
+              onChange={event => set("bioAr", event.target.value)}
+            />
+          </Field>
+          <Field label="Technical skills">
+            <Input
+              value={form.skills}
+              placeholder="C#, ASP.NET Core, React"
+              onChange={event => set("skills", event.target.value)}
+            />
+            <span className="field-hint">Separate skills with commas.</span>
+          </Field>
+          <div className="form-grid">
+            <Field label="GitHub URL">
+              <Input
+                type="url"
+                value={form.githubUrl}
+                onChange={event => set("githubUrl", event.target.value)}
+              />
+            </Field>
+            <Field label="LinkedIn URL">
+              <Input
+                type="url"
+                value={form.linkedinUrl}
+                onChange={event => set("linkedinUrl", event.target.value)}
+              />
+            </Field>
+            <Field label="Instagram URL">
+              <Input
+                type="url"
+                value={form.instagramUrl}
+                onChange={event => set("instagramUrl", event.target.value)}
+              />
+            </Field>
+            <Field label="Public email">
+              <Input
+                type="email"
+                value={form.email}
+                onChange={event => set("email", event.target.value)}
+              />
+            </Field>
+            <Field label="Public phone">
+              <Input
+                type="tel"
+                value={form.phone}
+                placeholder="+20 10 0000 0000"
+                onChange={event => set("phone", event.target.value)}
+              />
+            </Field>
+            <Field label="CV URL">
+              <Input
+                type="url"
+                value={form.cvUrl}
+                onChange={event => set("cvUrl", event.target.value)}
+              />
+            </Field>
+          </div>
+        </section>
+      </div>
+    </>
+  );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) { return <div className="admin-field"><Label>{label}</Label>{children}</div>; }
+function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="admin-field">
+      <Label>{label}</Label>
+      {children}
+    </div>
+  );
+}
 
 function ProjectManager() {
-  const utils = trpc.useUtils(); const { data: projects = [], isLoading } = trpc.admin.projects.list.useQuery(); const [draft, setDraft] = useState(blankProject); const [editingId, setEditingId] = useState<number | null>(null);
-  const refresh = () => { utils.admin.projects.list.invalidate(); utils.admin.overview.invalidate(); utils.portfolio.publicData.invalidate(); };
-  const create = trpc.admin.projects.create.useMutation({ onSuccess: () => { toast.success("Project published."); setDraft(blankProject); refresh(); }, onError: () => toast.error("Project could not be created.") });
-  const update = trpc.admin.projects.update.useMutation({ onSuccess: () => { toast.success("Project updated."); setEditingId(null); setDraft(blankProject); refresh(); }, onError: () => toast.error("Project could not be updated.") });
-  const remove = trpc.admin.projects.delete.useMutation({ onSuccess: () => { toast.success("Project deleted."); refresh(); }, onError: () => toast.error("Project could not be deleted.") });
-  const set = (key: keyof typeof draft, value: string | number | boolean) => setDraft(current => ({ ...current, [key]: value }));
-  const edit = (project: typeof projects[number]) => { setEditingId(project.id); setDraft({ titleEn: project.titleEn, titleAr: project.titleAr, descriptionEn: project.descriptionEn, descriptionAr: project.descriptionAr, techStack: project.techStack.join(", "), imageUrl: project.imageUrl ?? "", imageKey: project.imageKey ?? "", githubUrl: project.githubUrl ?? "", liveUrl: project.liveUrl ?? "", featured: project.featured, sortOrder: project.sortOrder }); window.scrollTo({ top: 0, behavior: "smooth" }); };
-  const submit = () => { const values = { ...draft, techStack: draft.techStack.split(",").map(tag => tag.trim()).filter(Boolean), imageUrl: draft.imageUrl || null, imageKey: draft.imageKey || null, githubUrl: draft.githubUrl, liveUrl: draft.liveUrl }; editingId ? update.mutate({ id: editingId, values }) : create.mutate(values); };
-  return <><AdminTitle eyebrow="WORK ARCHIVE" title="Projects." copy="Add, edit, reorder, or remove the work featured on the public portfolio." actions={<Button className="admin-button admin-button-quiet" onClick={() => { setEditingId(null); setDraft(blankProject); }}><Plus size={16} />New project</Button>} />
-    <section className="admin-editor admin-panel"><div className="editor-heading"><div><p className="admin-panel-label">{editingId ? "EDIT PROJECT" : "NEW PROJECT"}</p><h2>{editingId ? "Update selected work" : "Create a project entry"}</h2></div>{editingId ? <button className="admin-icon-text" onClick={() => { setEditingId(null); setDraft(blankProject); }}><X size={16} />Cancel</button> : null}</div><div className="form-grid"><Field label="Title — English"><Input value={draft.titleEn} onChange={event => set("titleEn", event.target.value)} /></Field><Field label="Title — Arabic"><Input dir="rtl" value={draft.titleAr} onChange={event => set("titleAr", event.target.value)} /></Field></div><div className="form-grid"><Field label="Description — English"><Textarea rows={4} value={draft.descriptionEn} onChange={event => set("descriptionEn", event.target.value)} /></Field><Field label="Description — Arabic"><Textarea rows={4} dir="rtl" value={draft.descriptionAr} onChange={event => set("descriptionAr", event.target.value)} /></Field></div><div className="form-grid"><Field label="Tech stack"><Input value={draft.techStack} placeholder="React, ASP.NET Core, EF Core" onChange={event => set("techStack", event.target.value)} /></Field><Field label="Display order"><Input type="number" min="0" value={draft.sortOrder} onChange={event => set("sortOrder", Number(event.target.value))} /></Field></div><div className="form-grid"><Field label="GitHub URL"><Input type="url" value={draft.githubUrl} onChange={event => set("githubUrl", event.target.value)} /></Field><Field label="Live demo URL"><Input type="url" value={draft.liveUrl} onChange={event => set("liveUrl", event.target.value)} /></Field></div><div className="editor-image-row">{draft.imageUrl ? <img src={draft.imageUrl} alt="Project preview" /> : <div className="editor-image-placeholder"><FileImage size={21} />No project visual</div>}<S3ImageUpload compact onUploaded={file => setDraft(current => ({ ...current, imageUrl: file.url, imageKey: file.key }))} /><label className="featured-toggle"><Switch checked={draft.featured} onCheckedChange={checked => set("featured", checked)} />Feature on public site</label></div><Button className="admin-button" onClick={submit} disabled={create.isPending || update.isPending}>{editingId ? <Save size={16} /> : <Plus size={16} />}{editingId ? "Save changes" : "Publish project"}</Button></section>
-    <section className="admin-list">{isLoading ? <div className="admin-panel">Loading projects…</div> : projects.map(project => <article key={project.id} className="admin-list-card"><div className="admin-list-thumb">{project.imageUrl ? <img src={project.imageUrl} alt="" /> : <FolderKanban size={18} />}</div><div className="admin-list-content"><span>#{project.sortOrder} {project.featured ? "· FEATURED" : ""}</span><h3>{project.titleEn}</h3><p>{project.techStack.join(" · ")}</p></div><div className="admin-row-actions"><button onClick={() => edit(project)} aria-label="Edit project"><Pencil size={16} /></button><button className="danger" onClick={() => { if (window.confirm(`Delete ${project.titleEn}? This cannot be undone.`)) remove.mutate({ id: project.id }); }} aria-label="Delete project"><Trash2 size={16} /></button></div></article>)}</section></>;
+  const utils = trpc.useUtils();
+  const { data: projects = [], isLoading } =
+    trpc.admin.projects.list.useQuery();
+  const [draft, setDraft] = useState(blankProject);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const refresh = () => {
+    utils.admin.projects.list.invalidate();
+    utils.admin.overview.invalidate();
+    utils.portfolio.publicData.invalidate();
+  };
+  const create = trpc.admin.projects.create.useMutation({
+    onSuccess: () => {
+      toast.success("Project published.");
+      setDraft(blankProject);
+      refresh();
+    },
+    onError: () => toast.error("Project could not be created."),
+  });
+  const update = trpc.admin.projects.update.useMutation({
+    onSuccess: () => {
+      toast.success("Project updated.");
+      setEditingId(null);
+      setDraft(blankProject);
+      refresh();
+    },
+    onError: () => toast.error("Project could not be updated."),
+  });
+  const remove = trpc.admin.projects.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Project deleted.");
+      refresh();
+    },
+    onError: () => toast.error("Project could not be deleted."),
+  });
+  const set = (key: keyof typeof draft, value: string | number | boolean) =>
+    setDraft(current => ({ ...current, [key]: value }));
+  const edit = (project: (typeof projects)[number]) => {
+    setEditingId(project.id);
+    setDraft({
+      titleEn: project.titleEn,
+      titleAr: project.titleAr,
+      descriptionEn: project.descriptionEn,
+      descriptionAr: project.descriptionAr,
+      techStack: project.techStack.join(", "),
+      imageUrl: project.imageUrl ?? "",
+      imageKey: project.imageKey ?? "",
+      githubUrl: project.githubUrl ?? "",
+      liveUrl: project.liveUrl ?? "",
+      featured: project.featured,
+      sortOrder: project.sortOrder,
+    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+  const submit = () => {
+    const values = {
+      ...draft,
+      techStack: draft.techStack
+        .split(",")
+        .map(tag => tag.trim())
+        .filter(Boolean),
+      imageUrl: draft.imageUrl || null,
+      imageKey: draft.imageKey || null,
+      githubUrl: draft.githubUrl,
+      liveUrl: draft.liveUrl,
+    };
+    editingId
+      ? update.mutate({ id: editingId, values })
+      : create.mutate(values);
+  };
+  return (
+    <>
+      <AdminTitle
+        eyebrow="WORK ARCHIVE"
+        title="Projects."
+        copy="Add, edit, reorder, or remove the work featured on the public portfolio."
+        actions={
+          <Button
+            className="admin-button admin-button-quiet"
+            onClick={() => {
+              setEditingId(null);
+              setDraft(blankProject);
+            }}
+          >
+            <Plus size={16} />
+            New project
+          </Button>
+        }
+      />
+      <section className="admin-editor admin-panel">
+        <div className="editor-heading">
+          <div>
+            <p className="admin-panel-label">
+              {editingId ? "EDIT PROJECT" : "NEW PROJECT"}
+            </p>
+            <h2>
+              {editingId ? "Update selected work" : "Create a project entry"}
+            </h2>
+          </div>
+          {editingId ? (
+            <button
+              className="admin-icon-text"
+              onClick={() => {
+                setEditingId(null);
+                setDraft(blankProject);
+              }}
+            >
+              <X size={16} />
+              Cancel
+            </button>
+          ) : null}
+        </div>
+        <div className="form-grid">
+          <Field label="Title — English">
+            <Input
+              value={draft.titleEn}
+              onChange={event => set("titleEn", event.target.value)}
+            />
+          </Field>
+          <Field label="Title — Arabic">
+            <Input
+              dir="rtl"
+              value={draft.titleAr}
+              onChange={event => set("titleAr", event.target.value)}
+            />
+          </Field>
+        </div>
+        <div className="form-grid">
+          <Field label="Description — English">
+            <Textarea
+              rows={4}
+              value={draft.descriptionEn}
+              onChange={event => set("descriptionEn", event.target.value)}
+            />
+          </Field>
+          <Field label="Description — Arabic">
+            <Textarea
+              rows={4}
+              dir="rtl"
+              value={draft.descriptionAr}
+              onChange={event => set("descriptionAr", event.target.value)}
+            />
+          </Field>
+        </div>
+        <div className="form-grid">
+          <Field label="Tech stack">
+            <Input
+              value={draft.techStack}
+              placeholder="React, ASP.NET Core, EF Core"
+              onChange={event => set("techStack", event.target.value)}
+            />
+          </Field>
+          <Field label="Display order">
+            <Input
+              type="number"
+              min="0"
+              value={draft.sortOrder}
+              onChange={event => set("sortOrder", Number(event.target.value))}
+            />
+          </Field>
+        </div>
+        <div className="form-grid">
+          <Field label="GitHub URL">
+            <Input
+              type="url"
+              value={draft.githubUrl}
+              onChange={event => set("githubUrl", event.target.value)}
+            />
+          </Field>
+          <Field label="Live demo URL">
+            <Input
+              type="url"
+              value={draft.liveUrl}
+              onChange={event => set("liveUrl", event.target.value)}
+            />
+          </Field>
+        </div>
+        <div className="editor-image-row">
+          {draft.imageUrl ? (
+            <img src={draft.imageUrl} alt="Project preview" />
+          ) : (
+            <div className="editor-image-placeholder">
+              <FileImage size={21} />
+              No project visual
+            </div>
+          )}
+          <S3ImageUpload
+            compact
+            onUploaded={file =>
+              setDraft(current => ({
+                ...current,
+                imageUrl: file.url,
+                imageKey: file.key,
+              }))
+            }
+          />
+          <label className="featured-toggle">
+            <Switch
+              checked={draft.featured}
+              onCheckedChange={checked => set("featured", checked)}
+            />
+            Feature on public site
+          </label>
+        </div>
+        <Button
+          className="admin-button"
+          onClick={submit}
+          disabled={create.isPending || update.isPending}
+        >
+          {editingId ? <Save size={16} /> : <Plus size={16} />}
+          {editingId ? "Save changes" : "Publish project"}
+        </Button>
+      </section>
+      <section className="admin-list">
+        {isLoading ? (
+          <div className="admin-panel">Loading projects…</div>
+        ) : (
+          projects.map(project => (
+            <article key={project.id} className="admin-list-card">
+              <div className="admin-list-thumb">
+                {project.imageUrl ? (
+                  <img src={project.imageUrl} alt="" />
+                ) : (
+                  <FolderKanban size={18} />
+                )}
+              </div>
+              <div className="admin-list-content">
+                <span>
+                  #{project.sortOrder} {project.featured ? "· FEATURED" : ""}
+                </span>
+                <h3>{project.titleEn}</h3>
+                <p>{project.techStack.join(" · ")}</p>
+              </div>
+              <div className="admin-row-actions">
+                <button onClick={() => edit(project)} aria-label="Edit project">
+                  <Pencil size={16} />
+                </button>
+                <button
+                  className="danger"
+                  onClick={() => {
+                    if (
+                      window.confirm(
+                        `Delete ${project.titleEn}? This cannot be undone.`
+                      )
+                    )
+                      remove.mutate({ id: project.id });
+                  }}
+                  aria-label="Delete project"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            </article>
+          ))
+        )}
+      </section>
+    </>
+  );
 }
 
 function CertificateManager() {
-  const utils = trpc.useUtils(); const { data: certificates = [], isLoading } = trpc.admin.certificates.list.useQuery(); const [draft, setDraft] = useState(blankCertificate); const [editingId, setEditingId] = useState<number | null>(null);
-  const refresh = () => { utils.admin.certificates.list.invalidate(); utils.admin.overview.invalidate(); utils.portfolio.publicData.invalidate(); };
-  const create = trpc.admin.certificates.create.useMutation({ onSuccess: () => { toast.success("Certificate added."); setDraft(blankCertificate); refresh(); }, onError: () => toast.error("Certificate could not be added.") });
-  const update = trpc.admin.certificates.update.useMutation({ onSuccess: () => { toast.success("Certificate updated."); setEditingId(null); setDraft(blankCertificate); refresh(); }, onError: () => toast.error("Certificate could not be updated.") });
-  const remove = trpc.admin.certificates.delete.useMutation({ onSuccess: () => { toast.success("Certificate deleted."); refresh(); }, onError: () => toast.error("Certificate could not be deleted.") });
-  const set = (key: keyof typeof draft, value: string | number) => setDraft(current => ({ ...current, [key]: value }));
-  const edit = (certificate: typeof certificates[number]) => { setEditingId(certificate.id); setDraft({ titleEn: certificate.titleEn, titleAr: certificate.titleAr, issuer: certificate.issuer, issuedAt: certificate.issuedAt, credentialUrl: certificate.credentialUrl ?? "", imageUrl: certificate.imageUrl ?? "", imageKey: certificate.imageKey ?? "", sortOrder: certificate.sortOrder }); };
-  const submit = () => { const values = { ...draft, credentialUrl: draft.credentialUrl, imageUrl: draft.imageUrl || null, imageKey: draft.imageKey || null }; editingId ? update.mutate({ id: editingId, values }) : create.mutate(values); };
-  return <><AdminTitle eyebrow="CREDENTIALS" title="Certificates." copy="Keep certifications and completed learning visible and verifiable." />
-    <section className="admin-editor admin-panel"><div className="editor-heading"><div><p className="admin-panel-label">{editingId ? "EDIT CERTIFICATE" : "NEW CERTIFICATE"}</p><h2>{editingId ? "Update credential" : "Add a credential"}</h2></div>{editingId ? <button className="admin-icon-text" onClick={() => { setEditingId(null); setDraft(blankCertificate); }}><X size={16} />Cancel</button> : null}</div><div className="form-grid"><Field label="Title — English"><Input value={draft.titleEn} onChange={event => set("titleEn", event.target.value)} /></Field><Field label="Title — Arabic"><Input dir="rtl" value={draft.titleAr} onChange={event => set("titleAr", event.target.value)} /></Field><Field label="Issuer"><Input value={draft.issuer} onChange={event => set("issuer", event.target.value)} /></Field><Field label="Date / status"><Input value={draft.issuedAt} placeholder="May 2026 or Completed" onChange={event => set("issuedAt", event.target.value)} /></Field><Field label="Credential URL"><Input type="url" value={draft.credentialUrl} onChange={event => set("credentialUrl", event.target.value)} /></Field><Field label="Display order"><Input type="number" min="0" value={draft.sortOrder} onChange={event => set("sortOrder", Number(event.target.value))} /></Field></div><div className="editor-image-row">{draft.imageUrl ? <img src={draft.imageUrl} alt="Certificate preview" /> : <div className="editor-image-placeholder"><BadgeCheck size={21} />No certificate image</div>}<S3ImageUpload compact onUploaded={file => setDraft(current => ({ ...current, imageUrl: file.url, imageKey: file.key }))} /></div><Button className="admin-button" onClick={submit} disabled={create.isPending || update.isPending}>{editingId ? <Save size={16} /> : <Plus size={16} />}{editingId ? "Save changes" : "Add certificate"}</Button></section>
-    <section className="admin-list">{isLoading ? <div className="admin-panel">Loading certificates…</div> : certificates.map(certificate => <article key={certificate.id} className="admin-list-card"><div className="admin-list-thumb">{certificate.imageUrl ? <img src={certificate.imageUrl} alt="" /> : <BadgeCheck size={18} />}</div><div className="admin-list-content"><span>#{certificate.sortOrder} · {certificate.issuedAt}</span><h3>{certificate.titleEn}</h3><p>{certificate.issuer}</p></div><div className="admin-row-actions"><button onClick={() => edit(certificate)} aria-label="Edit certificate"><Pencil size={16} /></button><button className="danger" onClick={() => { if (window.confirm(`Delete ${certificate.titleEn}? This cannot be undone.`)) remove.mutate({ id: certificate.id }); }} aria-label="Delete certificate"><Trash2 size={16} /></button></div></article>)}</section></>;
+  const utils = trpc.useUtils();
+  const { data: certificates = [], isLoading } =
+    trpc.admin.certificates.list.useQuery();
+  const [draft, setDraft] = useState(blankCertificate);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const refresh = () => {
+    utils.admin.certificates.list.invalidate();
+    utils.admin.overview.invalidate();
+    utils.portfolio.publicData.invalidate();
+  };
+  const create = trpc.admin.certificates.create.useMutation({
+    onSuccess: () => {
+      toast.success("Certificate added.");
+      setDraft(blankCertificate);
+      refresh();
+    },
+    onError: () => toast.error("Certificate could not be added."),
+  });
+  const update = trpc.admin.certificates.update.useMutation({
+    onSuccess: () => {
+      toast.success("Certificate updated.");
+      setEditingId(null);
+      setDraft(blankCertificate);
+      refresh();
+    },
+    onError: () => toast.error("Certificate could not be updated."),
+  });
+  const remove = trpc.admin.certificates.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Certificate deleted.");
+      refresh();
+    },
+    onError: () => toast.error("Certificate could not be deleted."),
+  });
+  const set = (key: keyof typeof draft, value: string | number) =>
+    setDraft(current => ({ ...current, [key]: value }));
+  const edit = (certificate: (typeof certificates)[number]) => {
+    setEditingId(certificate.id);
+    setDraft({
+      titleEn: certificate.titleEn,
+      titleAr: certificate.titleAr,
+      issuer: certificate.issuer,
+      issuedAt: certificate.issuedAt,
+      credentialUrl: certificate.credentialUrl ?? "",
+      imageUrl: certificate.imageUrl ?? "",
+      imageKey: certificate.imageKey ?? "",
+      sortOrder: certificate.sortOrder,
+    });
+  };
+  const submit = () => {
+    const values = {
+      ...draft,
+      credentialUrl: draft.credentialUrl,
+      imageUrl: draft.imageUrl || null,
+      imageKey: draft.imageKey || null,
+    };
+    editingId
+      ? update.mutate({ id: editingId, values })
+      : create.mutate(values);
+  };
+  return (
+    <>
+      <AdminTitle
+        eyebrow="CREDENTIALS"
+        title="Certificates."
+        copy="Keep certifications and completed learning visible and verifiable."
+      />
+      <section className="admin-editor admin-panel">
+        <div className="editor-heading">
+          <div>
+            <p className="admin-panel-label">
+              {editingId ? "EDIT CERTIFICATE" : "NEW CERTIFICATE"}
+            </p>
+            <h2>{editingId ? "Update credential" : "Add a credential"}</h2>
+          </div>
+          {editingId ? (
+            <button
+              className="admin-icon-text"
+              onClick={() => {
+                setEditingId(null);
+                setDraft(blankCertificate);
+              }}
+            >
+              <X size={16} />
+              Cancel
+            </button>
+          ) : null}
+        </div>
+        <div className="form-grid">
+          <Field label="Title — English">
+            <Input
+              value={draft.titleEn}
+              onChange={event => set("titleEn", event.target.value)}
+            />
+          </Field>
+          <Field label="Title — Arabic">
+            <Input
+              dir="rtl"
+              value={draft.titleAr}
+              onChange={event => set("titleAr", event.target.value)}
+            />
+          </Field>
+          <Field label="Issuer">
+            <Input
+              value={draft.issuer}
+              onChange={event => set("issuer", event.target.value)}
+            />
+          </Field>
+          <Field label="Date / status">
+            <Input
+              value={draft.issuedAt}
+              placeholder="May 2026 or Completed"
+              onChange={event => set("issuedAt", event.target.value)}
+            />
+          </Field>
+          <Field label="Credential URL">
+            <Input
+              type="url"
+              value={draft.credentialUrl}
+              onChange={event => set("credentialUrl", event.target.value)}
+            />
+          </Field>
+          <Field label="Display order">
+            <Input
+              type="number"
+              min="0"
+              value={draft.sortOrder}
+              onChange={event => set("sortOrder", Number(event.target.value))}
+            />
+          </Field>
+        </div>
+        <div className="editor-image-row">
+          {draft.imageUrl ? (
+            <img src={draft.imageUrl} alt="Certificate preview" />
+          ) : (
+            <div className="editor-image-placeholder">
+              <BadgeCheck size={21} />
+              No certificate image
+            </div>
+          )}
+          <S3ImageUpload
+            compact
+            onUploaded={file =>
+              setDraft(current => ({
+                ...current,
+                imageUrl: file.url,
+                imageKey: file.key,
+              }))
+            }
+          />
+        </div>
+        <Button
+          className="admin-button"
+          onClick={submit}
+          disabled={create.isPending || update.isPending}
+        >
+          {editingId ? <Save size={16} /> : <Plus size={16} />}
+          {editingId ? "Save changes" : "Add certificate"}
+        </Button>
+      </section>
+      <section className="admin-list">
+        {isLoading ? (
+          <div className="admin-panel">Loading certificates…</div>
+        ) : (
+          certificates.map(certificate => (
+            <article key={certificate.id} className="admin-list-card">
+              <div className="admin-list-thumb">
+                {certificate.imageUrl ? (
+                  <img src={certificate.imageUrl} alt="" />
+                ) : (
+                  <BadgeCheck size={18} />
+                )}
+              </div>
+              <div className="admin-list-content">
+                <span>
+                  #{certificate.sortOrder} · {certificate.issuedAt}
+                </span>
+                <h3>{certificate.titleEn}</h3>
+                <p>{certificate.issuer}</p>
+              </div>
+              <div className="admin-row-actions">
+                <button
+                  onClick={() => edit(certificate)}
+                  aria-label="Edit certificate"
+                >
+                  <Pencil size={16} />
+                </button>
+                <button
+                  className="danger"
+                  onClick={() => {
+                    if (
+                      window.confirm(
+                        `Delete ${certificate.titleEn}? This cannot be undone.`
+                      )
+                    )
+                      remove.mutate({ id: certificate.id });
+                  }}
+                  aria-label="Delete certificate"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            </article>
+          ))
+        )}
+      </section>
+    </>
+  );
 }
 
 function Messages() {
-  const utils = trpc.useUtils(); const { data: messages = [], isLoading } = trpc.admin.messages.list.useQuery(); const markRead = trpc.admin.messages.markRead.useMutation({ onSuccess: () => { utils.admin.messages.list.invalidate(); utils.admin.overview.invalidate(); } });
-  return <><AdminTitle eyebrow="INBOX" title="Messages." copy="Messages submitted from the public contact form arrive here." />
-    <section className="message-list">{isLoading ? <div className="admin-panel">Loading messages…</div> : messages.length === 0 ? <div className="admin-empty"><Inbox size={24} /><p>Your inbox is clear.</p></div> : messages.map(message => <article key={message.id} className={`message-card ${message.isRead ? "" : "message-unread"}`}><div className="message-header"><div><span>{message.senderName} · {message.senderEmail}</span><h3>{message.subject}</h3></div><button onClick={() => markRead.mutate({ id: message.id, isRead: !message.isRead })}>{message.isRead ? "Mark unread" : <><Check size={15} />Mark read</>}</button></div><p>{message.body}</p><time>{new Date(message.createdAt).toLocaleString()}</time></article>)}</section></>;
+  const utils = trpc.useUtils();
+  const { data: messages = [], isLoading } =
+    trpc.admin.messages.list.useQuery();
+  const markRead = trpc.admin.messages.markRead.useMutation({
+    onSuccess: () => {
+      utils.admin.messages.list.invalidate();
+      utils.admin.overview.invalidate();
+    },
+  });
+  return (
+    <>
+      <AdminTitle
+        eyebrow="INBOX"
+        title="Messages."
+        copy="Messages submitted from the public contact form arrive here."
+      />
+      <section className="message-list">
+        {isLoading ? (
+          <div className="admin-panel">Loading messages…</div>
+        ) : messages.length === 0 ? (
+          <div className="admin-empty">
+            <Inbox size={24} />
+            <p>Your inbox is clear.</p>
+          </div>
+        ) : (
+          messages.map(message => (
+            <article
+              key={message.id}
+              className={`message-card ${message.isRead ? "" : "message-unread"}`}
+            >
+              <div className="message-header">
+                <div>
+                  <span>
+                    {message.senderName} · {message.senderEmail}
+                  </span>
+                  <h3>{message.subject}</h3>
+                </div>
+                <button
+                  onClick={() =>
+                    markRead.mutate({ id: message.id, isRead: !message.isRead })
+                  }
+                >
+                  {message.isRead ? (
+                    "Mark unread"
+                  ) : (
+                    <>
+                      <Check size={15} />
+                      Mark read
+                    </>
+                  )}
+                </button>
+              </div>
+              <p>{message.body}</p>
+              <time>{new Date(message.createdAt).toLocaleString()}</time>
+            </article>
+          ))
+        )}
+      </section>
+    </>
+  );
 }
 
 export default function Admin() {

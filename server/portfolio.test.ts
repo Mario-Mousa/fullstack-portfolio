@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { appRouter } from "./routers";
 import type { TrpcContext } from "./_core/context";
-import { cvUploadInput, phoneInput, projectInput, publicFileUrl } from "./routers/portfolio";
+import {
+  cvUploadInput,
+  phoneInput,
+  projectInput,
+  publicFileUrl,
+} from "./routers/portfolio";
 
 function createContext(user: TrpcContext["user"]): TrpcContext {
   return {
@@ -13,28 +18,50 @@ function createContext(user: TrpcContext["user"]): TrpcContext {
 
 describe("portfolio contracts", () => {
   it("rejects incomplete project input before it reaches the database", () => {
-    const result = projectInput.safeParse({ titleEn: "A", titleAr: "ب", techStack: [] });
+    const result = projectInput.safeParse({
+      titleEn: "A",
+      titleAr: "ب",
+      techStack: [],
+    });
     expect(result.success).toBe(false);
   });
 
   it("accepts a complete bilingual project input", () => {
     const result = projectInput.safeParse({
-      titleEn: "Project", titleAr: "مشروع", descriptionEn: "A valid English project description.",
-      descriptionAr: "وصف عربي صالح ومتكامل للمشروع.", techStack: ["React", "ASP.NET Core"],
-      imageUrl: null, imageKey: null, githubUrl: "", liveUrl: "", featured: true, sortOrder: 1,
+      titleEn: "Project",
+      titleAr: "مشروع",
+      descriptionEn: "A valid English project description.",
+      descriptionAr: "وصف عربي صالح ومتكامل للمشروع.",
+      techStack: ["React", "ASP.NET Core"],
+      imageUrl: null,
+      imageKey: null,
+      githubUrl: "",
+      liveUrl: "",
+      featured: true,
+      sortOrder: 1,
     });
     expect(result.success).toBe(true);
   });
 
   it("accepts PDF CV uploads and rejects a non-PDF file type", () => {
-    const pdf = cvUploadInput.safeParse({ base64: "a".repeat(20), fileName: "candidate-cv.pdf", contentType: "application/pdf" });
-    const image = cvUploadInput.safeParse({ base64: "a".repeat(20), fileName: "portrait.png", contentType: "image/png" });
+    const pdf = cvUploadInput.safeParse({
+      base64: "a".repeat(20),
+      fileName: "candidate-cv.pdf",
+      contentType: "application/pdf",
+    });
+    const image = cvUploadInput.safeParse({
+      base64: "a".repeat(20),
+      fileName: "portrait.png",
+      contentType: "image/png",
+    });
     expect(pdf.success).toBe(true);
     expect(image.success).toBe(false);
   });
 
   it("accepts the secure relative storage path returned for an uploaded CV", () => {
-    const storedPath = publicFileUrl.safeParse("/manus-storage/portfolio/1/cv/example.pdf");
+    const storedPath = publicFileUrl.safeParse(
+      "/manus-storage/portfolio/1/cv/example.pdf"
+    );
     const invalidPath = publicFileUrl.safeParse("relative-untrusted-file.pdf");
     expect(storedPath.success).toBe(true);
     expect(invalidPath.success).toBe(false);
@@ -46,17 +73,47 @@ describe("portfolio contracts", () => {
   });
 
   it("blocks a signed-in non-owner before protected dashboard data is read", async () => {
-    const caller = appRouter.createCaller(createContext({
-      id: 99, openId: "non-owner-open-id", email: "visitor@example.com", name: "Visitor", loginMethod: "manus", role: "user",
-      createdAt: new Date(), updatedAt: new Date(), lastSignedIn: new Date(),
-    }));
-    await expect(caller.admin.overview()).rejects.toMatchObject({ code: "FORBIDDEN" });
+    const caller = appRouter.createCaller(
+      createContext({
+        id: 99,
+        openId: "non-owner-open-id",
+        email: "visitor@example.com",
+        name: "Visitor",
+        loginMethod: "manus",
+        role: "user",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        lastSignedIn: new Date(),
+      })
+    );
+    await expect(caller.admin.overview()).rejects.toMatchObject({
+      code: "FORBIDDEN",
+    });
   });
 
   it("returns the public profile, projects, and certificates through the public API", async () => {
     const caller = appRouter.createCaller(createContext(null));
     const publicData = await caller.portfolio.publicData();
-    expect(publicData).toEqual(expect.objectContaining({ projects: expect.any(Array), certificates: expect.any(Array) }));
-    expect(publicData.profile === null || Array.isArray(publicData.profile.skills)).toBe(true);
+    expect(publicData).toEqual(
+      expect.objectContaining({
+        projects: expect.any(Array),
+        certificates: expect.any(Array),
+      })
+    );
+    expect(
+      publicData.profile === null || Array.isArray(publicData.profile.skills)
+    ).toBe(true);
+  });
+
+  it("rejects an invalid public contact-form submission before persistence", async () => {
+    const caller = appRouter.createCaller(createContext(null));
+    await expect(
+      caller.portfolio.sendMessage({
+        senderName: "A",
+        senderEmail: "not-an-email",
+        subject: "Hi",
+        body: "Too short",
+      })
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
   });
 });

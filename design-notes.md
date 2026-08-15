@@ -55,3 +55,47 @@ Follow-up language-switch investigation: the published domain redirected this sa
 Direct in-page diagnostics on the About view confirmed that the current handler can switch from `en`/LTR to `ar`/RTL and persist `portfolio-language=ar` in development. The follow-up correction will make the visible language state explicitly React-controlled and apply the document direction before the async i18n transition, removing any reliance on delayed external language events.
 
 Post-fix verification completed in the About tab: Arabic switched to English with `en`/LTR persisted, then English switched back to Arabic with `ar`/RTL persisted. The visible action label updated at each step, and the active About tab was retained throughout.
+
+Credential follow-up verification: after the secured password refresh and development-service restart, `/admin/login` loads the intended owner credential form with editable email/password inputs, visibility control, submit state, and public-portfolio return path.
+
+The owner credentials supplied in the follow-up request were entered into the live development login form and submitted; the next route-state check confirms the user-facing result.
+
+The submitted owner credentials successfully opened the protected dashboard after the secret refresh. The quality pass then removed unused template modules, pruned unused icon imports, and simplified the photo-modal markup ahead of visual interaction testing.
+
+The visible About language control is confirmed enabled and directly hit-testable at its center with `pointer-events: auto`; no decorative layer is intercepting user clicks. The remaining verification focuses on the post-click language state and persistence.
+
+Profile lightbox verification passed after the cleanup: the enlarged image is shown without the former circular/orbital overlay, and Escape still closes the accessible dialog and returns focus to the profile-photo trigger.
+
+Physical-click investigation: Arabic-to-English works through the visible control. After the layout becomes English/LTR, hit testing at the displayed Arabic-control center identifies an overlapping element rather than the button itself. This reproduces the user's English-to-Arabic failure and isolates it as a stacking/layering defect in the header rather than an i18n state defect.
+
+The header fix sets the decorative hero grid to ignore pointer events and explicitly layers the sticky topbar above content. Post-fix hit testing targets the button itself, and a physical click changed English/LTR back to Arabic/RTL while preserving the About tab.
+
+Public navigation verification passed: a physical click on the projects control updated the URL hash to `#work`, mounted the Arabic projects panel in place, and retained the responsive identity rail.
+
+Theme-control verification passed: a physical click changed the portfolio from dark to light mode, updated the accessible action label for the reverse operation, and preserved the active Arabic projects tab and its content.
+
+Lazy-route verification passed: an existing authenticated owner session loads the admin route after the branded fallback and renders the correct protected dashboard summary, including five projects, two certificates, and zero unread messages.
+
+The sidebar sign-out control remains present and reachable in the lazy-loaded dashboard. Preview-coordinate variance did not trigger its action, so the next check activates the actual DOM control directly before confirming the route and session state.
+
+Sign-out verification completed: invoking the actual sidebar control cleared the owner session and routed the user to `/admin/login`, where the credential form rendered again in the current light theme.
+
+An incorrect email/password pair was submitted from the rendered login form while no owner session was present. The next interface check validates the rejection message and confirms that the route stays on the credential screen.
+
+Credential rejection verification completed: incorrect values keep the route on `/admin/login` and display the generic error message without issuing a session. The final quality gate passed TypeScript, sixteen automated tests covering language, uploads, validation, authorization, login success/failure, logout, and public outputs, plus a production build. Route-level lazy loading places the admin dashboard and login code in separate production chunks.
+
+Performance follow-up completed: manual vendor chunks reduced the main application asset from roughly 897 kB minified to roughly 217 kB minified, with React, motion, UI, icons, and i18n delivered as independently cacheable chunks. The remaining interaction pass continues with the public contact form.
+
+Public contact-form validation passed without creating test data: all four required fields report invalid while empty, so browser-native validation blocks an accidental blank submission. Server contract tests additionally reject malformed payloads before persistence.
+
+The owner login route remains available after the public-form verification and exposes the expected email, password, visibility, submit, and public-return controls before the non-destructive dashboard save check.
+
+The configured owner credentials were entered and submitted again from the login form to begin the non-destructive profile-save and upload-control verification.
+
+The valid owner session opened the dashboard successfully, and the Profile navigation target is available for the current non-destructive save-path verification.
+
+Profile-save and upload-control verification completed without altering visitor-facing data. The editor retained its current bilingual profile values after the save action; the existing portrait remained rendered in the editor and the current CV path remained available. The two upload controls accept a single image (`PNG`, `JPEG`, or `WebP`) or a single PDF, respectively, matching the client and server validation contracts.
+
+The profile save action was invoked a second time with unchanged values and the editor still presented the expected persisted profile fields, portrait, and CV reference. The success toast’s short display interval was not retained in the later capture, so request-level confirmation and an explicit reversible upload are being completed before closing the validation.
+
+The profile editor loaded its current bilingual text, public links, image, CV path, and upload controls. A save was invoked with the unchanged values to test the live profile mutation without changing visitor-facing content; the next check confirms the success output.

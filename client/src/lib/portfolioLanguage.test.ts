@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { nextPortfolioLanguage, toPortfolioLanguage } from "./portfolioLanguage";
+import {
+  nextPortfolioLanguage,
+  toPortfolioLanguage,
+} from "./portfolioLanguage";
 
 describe("portfolio language helpers", () => {
   it("normalizes browser and i18n language codes to the supported portfolio languages", () => {

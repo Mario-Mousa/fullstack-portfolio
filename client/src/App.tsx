@@ -5,24 +5,27 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import BrandLoader from "./components/BrandLoader";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import Admin from "./pages/Admin";
-import AdminLogin from "./pages/AdminLogin";
 import Home from "./pages/Home";
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
+
+const Admin = lazy(() => import("./pages/Admin"));
+const AdminLogin = lazy(() => import("./pages/AdminLogin"));
 
 function Router() {
   return (
-    <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/admin/login" component={AdminLogin} />
-      <Route path="/admin" component={Admin} />
-      <Route path="/admin/profile" component={Admin} />
-      <Route path="/admin/projects" component={Admin} />
-      <Route path="/admin/certificates" component={Admin} />
-      <Route path="/admin/messages" component={Admin} />
-      <Route path="/404" component={NotFound} />
-      <Route component={NotFound} />
-    </Switch>
+    <Suspense fallback={<BrandLoader />}>
+      <Switch>
+        <Route path="/" component={Home} />
+        <Route path="/admin/login" component={AdminLogin} />
+        <Route path="/admin" component={Admin} />
+        <Route path="/admin/profile" component={Admin} />
+        <Route path="/admin/projects" component={Admin} />
+        <Route path="/admin/certificates" component={Admin} />
+        <Route path="/admin/messages" component={Admin} />
+        <Route path="/404" component={NotFound} />
+        <Route component={NotFound} />
+      </Switch>
+    </Suspense>
   );
 }
 

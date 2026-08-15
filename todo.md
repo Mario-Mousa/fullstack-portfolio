@@ -56,3 +56,14 @@
 - [x] Re-verify the widened About view and owner credential screen at a narrow/mobile viewport after the final updates.
 - [x] Save and publish the final verified credential-login and About-layout checkpoint.
 - [x] Diagnose and fix the About language switch when changing from English to Arabic, then verify it in the live portfolio flow.
+- [x] Verify and correct the configured dashboard password flow using the owner-supplied credentials without exposing the secret in code.
+- [x] Reproduce and make the About English-to-Arabic control reliable in the visitor-facing flow.
+- [x] Remove the decorative circular/orbital overlay from the enlarged profile-photo modal while retaining accessible close behavior.
+- [x] Audit portfolio components and server contracts for dead code, duplicated responsibilities, and avoidable coupling; apply focused design-pattern and SOLID-oriented cleanup.
+- [x] Review and test public navigation, language/theme controls, photo modal, contact form, dashboard login/logout, dashboard CRUD inputs, and upload/output paths.
+- [x] Run type, regression, interaction, and production-build checks; address identified performance or reliability regressions before publishing.
+- [ ] Re-audit the remaining Home/Admin/style structure and apply or document focused responsibility boundaries.
+- [x] Browser-test public contact validation, one non-destructive dashboard save flow, and one upload input/output flow after the refactor.
+- [ ] Capture visible success evidence and persisted output for the current profile-save mutation after the refactor.
+- [ ] Run a reversible real upload verification and restore the original profile asset after confirming the returned output path.
+- [ ] Reduce or document the remaining large public bundle before the final review checkpoint.
