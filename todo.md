@@ -68,3 +68,6 @@
 - [x] Run a reversible real upload verification and restore the original profile asset after confirming the returned output path.
 - [x] Reduce or document the remaining large public bundle before the final review checkpoint.
 - [x] Capture durable visible success evidence for a profile save after the refactor, adding a stable saved-state indicator if the toast is too brief.
+- [x] Diagnose and fix the blank page reported on the published portfolio domain, then verify the public link after release.
+- [ ] Publish the corrected production bundle after the white-page fix.
+- [ ] Verify that the published domain renders the public portfolio and that one core interaction works after release.

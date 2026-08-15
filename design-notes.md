@@ -100,3 +100,5 @@ The profile save action was invoked a second time with unchanged values and the 
 
 The profile editor loaded its current bilingual text, public links, image, CV path, and upload controls. A save was invoked with the unchanged values to test the live profile mutation without changing visitor-facing content; the next check confirms the success output.
 A durable `Saved` status was added beside the profile save button. It is cleared on field edits and set only after the typed profile mutation succeeds, so the owner has persistent visual confirmation beyond the short toast. TypeScript, all 16 Vitest tests, and the production build pass after this change.
+
+Published-page diagnosis: the production root stayed empty because the entry module failed during import with `TypeError: Cannot set properties of undefined (setting 'Activity')`, traced to the generated React/i18n chunks. The direct development preview did not exhibit the failure, isolating the issue to the custom production vendor-chunk boundary rather than public content, routing, or the loading screen.
