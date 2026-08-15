@@ -158,7 +158,6 @@ export default function Home() {
           {availability ? <div className="availability"><span className="availability-dot" />{availability}</div> : null}
           {location ? <p className="hero-kicker"><MapPin size={15} />{location}</p> : null}
           <h1>{name || t("portfolio.emptyTitle")}<span className="hero-line">{headline || ""}</span></h1>
-          <p className="hero-summary">{bio || t("portfolio.emptyCopy")}</p>
           <div className="hero-actions">
             <button type="button" onClick={() => selectTab("projects")} className="primary-button">{t("hero.viewWork")}<ArrowDownRight size={18} /></button>
             <button type="button" onClick={() => selectTab("contact")} className="text-button">{t("hero.contact")}<ArrowUpRight size={17} /></button>

@@ -44,3 +44,7 @@
 - [x] Add active-tab styling and smooth fade/slide transitions across header, rail, and mobile navigation controls.
 - [x] Keep the desktop identity rail sticky and visually balanced while stacking it above tab content on narrow screens.
 - [x] Re-verify the tabbed workspace on mobile, in dark theme, and with the profile lightbox after the layout refactor, then save the update checkpoint.
+- [x] Increase the visual prominence of the public profile photo while preserving responsive rail balance.
+- [x] Remove duplicated biography copy from the About tab and retain a single clear introduction.
+- [x] Verify the refined About tab and profile rail at desktop and mobile sizes, then save the update checkpoint.
+- [x] Adjust and re-verify the enlarged profile portrait within the mobile identity-rail grid, then save the final refinement checkpoint.
