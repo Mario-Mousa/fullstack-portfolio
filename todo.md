@@ -21,3 +21,6 @@
 - [x] Add owner-only CV file upload with PDF validation and S3 storage.
 - [x] Add a public CV download button to the hero and footer using the uploaded file URL.
 - [x] Verify the uploaded CV download link end-to-end with a temporary test file, restore profile data, and save an updated checkpoint.
+- [x] Diagnose the profile-save failure triggered after CV upload and capture its server validation details.
+- [x] Fix the profile save payload or persistence contract for uploaded CV metadata.
+- [x] Re-test the owner profile save procedure with an uploaded-CV storage path and save a repaired checkpoint.

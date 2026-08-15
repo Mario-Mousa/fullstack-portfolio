@@ -8,6 +8,11 @@ import { storagePut } from "../storage";
 
 const nullableUrl = z.union([z.string().url(), z.literal("")]).transform(value => value || null).optional();
 const nullableText = z.string().trim().max(600).nullable().optional();
+export const publicFileUrl = z.union([
+  z.string().url(),
+  z.string().regex(/^\/manus-storage\/[a-zA-Z0-9_./-]+$/),
+  z.literal(""),
+]).transform(value => value || null).optional();
 export const projectInput = z.object({
   titleEn: z.string().trim().min(2).max(180), titleAr: z.string().trim().min(2).max(180),
   descriptionEn: z.string().trim().min(10).max(4000), descriptionAr: z.string().trim().min(10).max(4000),
@@ -31,7 +36,7 @@ export const profileInput = z.object({
   trainingEn: z.string().trim().min(2).max(320), trainingAr: z.string().trim().min(2).max(320),
   avatarUrl: nullableText, avatarKey: nullableText, skills: z.array(z.string().trim().min(1).max(50)).max(30),
   githubUrl: nullableUrl, linkedinUrl: nullableUrl, email: z.union([z.string().email(), z.literal("")]).transform(value => value || null),
-  cvUrl: nullableUrl, cvKey: nullableText,
+  cvUrl: publicFileUrl, cvKey: nullableText,
 });
 
 export const cvUploadInput = z.object({

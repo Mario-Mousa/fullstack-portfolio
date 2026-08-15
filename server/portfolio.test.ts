@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { appRouter } from "./routers";
 import type { TrpcContext } from "./_core/context";
-import { cvUploadInput, projectInput } from "./routers/portfolio";
+import { cvUploadInput, projectInput, publicFileUrl } from "./routers/portfolio";
 
 function createContext(user: TrpcContext["user"]): TrpcContext {
   return {
@@ -31,6 +31,13 @@ describe("portfolio contracts", () => {
     const image = cvUploadInput.safeParse({ base64: "a".repeat(20), fileName: "portrait.png", contentType: "image/png" });
     expect(pdf.success).toBe(true);
     expect(image.success).toBe(false);
+  });
+
+  it("accepts the secure relative storage path returned for an uploaded CV", () => {
+    const storedPath = publicFileUrl.safeParse("/manus-storage/portfolio/1/cv/example.pdf");
+    const invalidPath = publicFileUrl.safeParse("relative-untrusted-file.pdf");
+    expect(storedPath.success).toBe(true);
+    expect(invalidPath.success).toBe(false);
   });
 
   it("blocks a signed-in non-owner before protected dashboard data is read", async () => {
