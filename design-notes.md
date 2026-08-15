@@ -102,3 +102,7 @@ The profile editor loaded its current bilingual text, public links, image, CV pa
 A durable `Saved` status was added beside the profile save button. It is cleared on field edits and set only after the typed profile mutation succeeds, so the owner has persistent visual confirmation beyond the short toast. TypeScript, all 16 Vitest tests, and the production build pass after this change.
 
 Published-page diagnosis: the production root stayed empty because the entry module failed during import with `TypeError: Cannot set properties of undefined (setting 'Activity')`, traced to the generated React/i18n chunks. The direct development preview did not exhibit the failure, isolating the issue to the custom production vendor-chunk boundary rather than public content, routing, or the loading screen.
+
+After publishing the source correction, the public domain still served the older `index-BqYv67cy.js` asset and retained the empty root. The next investigation focuses on the deployment build artifact path and deployment cache rather than browser-level routing.
+
+Published verification completed after the deployment refresh: the public domain loaded the branded loader and then rendered the full English portfolio instead of an empty root. The header Work control updated the published URL to `#work` and rendered the project list, confirming that the live JavaScript bundle, route state, and primary tab interaction are healthy.
