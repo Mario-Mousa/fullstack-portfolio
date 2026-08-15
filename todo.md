@@ -71,3 +71,4 @@
 - [x] Diagnose and fix the blank page reported on the published portfolio domain, then verify the public link after release.
 - [x] Publish the corrected production bundle after the white-page fix.
 - [x] Verify that the published domain renders the public portfolio and that one core interaction works after release.
+- [x] Diagnose and fix the owner-login rejection for the supplied dashboard credentials, then verify it live.

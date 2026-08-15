@@ -106,3 +106,7 @@ Published-page diagnosis: the production root stayed empty because the entry mod
 After publishing the source correction, the public domain still served the older `index-BqYv67cy.js` asset and retained the empty root. The next investigation focuses on the deployment build artifact path and deployment cache rather than browser-level routing.
 
 Published verification completed after the deployment refresh: the public domain loaded the branded loader and then rendered the full English portfolio instead of an empty root. The header Work control updated the published URL to `#work` and rendered the project list, confirming that the live JavaScript bundle, route state, and primary tab interaction are healthy.
+
+Credential-rejection follow-up: the owner secret was explicitly refreshed and the lightweight login endpoint test passed. The restarted development service now loads the credential form normally; the next step verifies the same values through the rendered fields.
+
+Live credential verification completed: submitting the owner email and configured password through the rendered login form redirected successfully to `/admin` and loaded the owner dashboard with the expected overview cards.
