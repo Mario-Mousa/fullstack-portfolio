@@ -113,6 +113,8 @@ Direct published-domain diagnosis later established that the password was valid,
 
 After publishing the database-backed correction, the development login passed from a freshly cleared session. The published form still returned the exact earlier `User openId is required for upsert` response, which cannot be emitted by the newly guarded resolver. This indicates that production is still serving a prior backend artifact; the next step is to restart the managed service and publish a fresh checkpoint before retesting the same endpoint.
 
+The fresh backend served the corrected login request successfully, but the dashboard remained restricted. Session diagnostics showed why: routine session validation upserted the existing owner record without a role, and the database helper treated absent `OWNER_OPEN_ID` as a reason to reset that record to `user`. The helper now preserves an existing role during ordinary session-heartbeat updates, while explicit dashboard-login upserts continue to set the owner record to `admin`.
+
 Live credential verification completed: submitting the owner email and configured password through the rendered login form redirected successfully to `/admin` and loaded the owner dashboard with the expected overview cards.
 
 The supplied recording confirms that the user entered the expected email and the password `[REDACTED]`, then received the generic rejection while remaining on the published login page. The same published login screen has now been loaded for direct reproduction against the production server.

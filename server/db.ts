@@ -9,6 +9,7 @@ import {
   users,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
+import { resolveRoleWrite } from "./ownerIdentity";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -69,8 +70,14 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       updateSet[field] = user[field] ?? null;
     }
   });
-  values.role = user.role ?? (user.openId === ENV.ownerOpenId ? "admin" : "user");
-  updateSet.role = values.role;
+  // Role is immutable during routine session-heartbeat updates. Without this
+  // guard, authenticateRequest() would overwrite a promoted owner with the
+  // default user role whenever OWNER_OPEN_ID is unavailable in production.
+  const roleWrite = resolveRoleWrite(user.role, user.openId, ENV.ownerOpenId);
+  values.role = roleWrite.role;
+  if (user.role !== undefined) {
+    updateSet.role = values.role;
+  }
   await db.insert(users).values(values).onDuplicateKeyUpdate({ set: updateSet });
 }
 

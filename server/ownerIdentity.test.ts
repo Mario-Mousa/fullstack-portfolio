@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isOwnerAccount, normalizeOwnerEmail, resolveOwnerOpenId } from "./ownerIdentity";
+import { isOwnerAccount, normalizeOwnerEmail, resolveOwnerOpenId, resolveRoleWrite } from "./ownerIdentity";
 
 describe("owner identity resolution", () => {
   it("normalizes the owner email before comparison", () => {
@@ -16,5 +16,10 @@ describe("owner identity resolution", () => {
     expect(isOwnerAccount({ email: "mariosayers005@gmail.com", role: "admin" }, "MARIOsayERS005@gmail.com")).toBe(true);
     expect(isOwnerAccount({ email: "mariosayers005@gmail.com", role: "user" }, "mariosayers005@gmail.com")).toBe(false);
     expect(isOwnerAccount({ email: "other@example.com", role: "admin" }, "mariosayers005@gmail.com")).toBe(false);
+  });
+
+  it("preserves a stored administrator role during session-only updates", () => {
+    expect(resolveRoleWrite(undefined, "stored-owner-id", "")).toEqual({ role: "user", shouldUpdateExistingRole: false });
+    expect(resolveRoleWrite("admin", "stored-owner-id", "")).toEqual({ role: "admin", shouldUpdateExistingRole: true });
   });
 });
