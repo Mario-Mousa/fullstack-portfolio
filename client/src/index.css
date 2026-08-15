@@ -3809,7 +3809,15 @@ html[dir="rtl"] .signal-garden h3 {
     aspect-ratio: 0.76;
   }
 }
-
+@media (max-width: 800px) and (max-aspect-ratio: 3 / 4) {
+  .signal-garden .identity-rail {
+    min-height: calc(100dvh + 7rem);
+  }
+  .signal-garden .identity-card {
+    flex: none;
+    min-height: calc(100dvh + 6rem);
+  }
+}
 /* About readability and owner credential sign-in */
 .signal-garden .tab-panel-about .about-grid {
   grid-template-columns: minmax(0, 1.7fr) minmax(260px, 0.7fr);
