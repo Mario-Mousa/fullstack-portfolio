@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { appRouter } from "./routers";
 import type { TrpcContext } from "./_core/context";
-import { cvUploadInput, projectInput, publicFileUrl } from "./routers/portfolio";
+import { cvUploadInput, phoneInput, projectInput, publicFileUrl } from "./routers/portfolio";
 
 function createContext(user: TrpcContext["user"]): TrpcContext {
   return {
@@ -38,6 +38,11 @@ describe("portfolio contracts", () => {
     const invalidPath = publicFileUrl.safeParse("relative-untrusted-file.pdf");
     expect(storedPath.success).toBe(true);
     expect(invalidPath.success).toBe(false);
+  });
+
+  it("accepts a public phone number and rejects non-phone content", () => {
+    expect(phoneInput.safeParse("+20 10 1234 5678").success).toBe(true);
+    expect(phoneInput.safeParse("not-a-phone").success).toBe(false);
   });
 
   it("blocks a signed-in non-owner before protected dashboard data is read", async () => {

@@ -28,3 +28,9 @@
 - [x] Redesign the public navigation, hero, section rhythm, cards, and footer without changing the database content model.
 - [x] Add a performant ambient animated background with reduced-motion support.
 - [x] Verify the redesigned public portfolio on desktop and mobile, then save an updated checkpoint.
+- [x] Add phone number and Instagram fields to the profile schema, secure management API, and owner dashboard.
+- [x] Show email, phone, LinkedIn, GitHub, and Instagram consistently in the redesigned public profile area and contact section.
+- [x] Rename public CV actions from Download CV to View CV in both languages.
+- [x] Recompose the public layout around a distinct fixed identity panel and navigable content panel inspired by the reference without copying it.
+- [x] Refine the animated background and palette for a more comfortable, polished visual atmosphere.
+- [x] Verify owner profile save and public data propagation for phone and Instagram, then save an updated checkpoint.

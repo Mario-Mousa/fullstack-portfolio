@@ -1,7 +1,7 @@
 import { useTheme } from "@/contexts/ThemeContext";
 import { trpc } from "@/lib/trpc";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowDownRight, ArrowUpRight, Code2, Database, Download, ExternalLink, Github, Globe2, GraduationCap, Languages, Linkedin, Mail, MapPin, Menu, Moon, Send, Sparkles, Sun, X } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, Code2, Database, Download, ExternalLink, Github, Globe2, GraduationCap, Instagram, Languages, Linkedin, Mail, MapPin, Menu, Moon, Phone, Send, Sparkles, Sun, X } from "lucide-react";
 import { FormEvent, ReactNode, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -93,6 +93,22 @@ export default function Home() {
     <main className="portfolio-shell signal-garden">
       <div className="ambient-field" aria-hidden="true"><div className="ambient-orb ambient-orb-a" /><div className="ambient-orb ambient-orb-b" /><div className="ambient-orb ambient-orb-c" /><div className="ambient-grid" /><div className="ambient-stars" /></div>
       <div className="grain" aria-hidden="true" />
+      <div className="portfolio-frame">
+      <aside className="identity-rail" aria-label="Profile summary">
+        <div className="identity-card glass-panel">
+          <div className="rail-portrait">{profile?.avatarUrl ? <img src={profile.avatarUrl} alt={name || "Profile"} /> : <span>{initials}</span>}<i className="rail-orbit rail-orbit-one" /><i className="rail-orbit rail-orbit-two" /></div>
+          <p className="rail-system">SYSTEM // 01</p><h2>{name || "Portfolio"}</h2><p className="rail-headline">{headline || ""}</p>
+          {availability ? <div className="rail-availability"><span />{availability}</div> : null}
+          <div className="rail-contact">
+            {profile?.email ? <a href={`mailto:${profile.email}`}><Mail size={15} /><span><b>EMAIL</b>{profile.email}</span></a> : null}
+            {profile?.phone ? <a href={`tel:${profile.phone.replace(/\s+/g, "")}`}><Phone size={15} /><span><b>PHONE</b>{profile.phone}</span></a> : null}
+            {location ? <span><MapPin size={15} /><span><b>LOCATION</b>{location}</span></span> : null}
+          </div>
+          <div className="rail-socials">{profile?.githubUrl ? <a href={profile.githubUrl} target="_blank" rel="noreferrer" aria-label="GitHub"><Github size={17} /></a> : null}{profile?.linkedinUrl ? <a href={profile.linkedinUrl} target="_blank" rel="noreferrer" aria-label="LinkedIn"><Linkedin size={17} /></a> : null}{profile?.instagramUrl ? <a href={profile.instagramUrl} target="_blank" rel="noreferrer" aria-label="Instagram"><Instagram size={17} /></a> : null}{profile?.cvUrl ? <a href={profile.cvUrl} target="_blank" rel="noreferrer" className="rail-cv"><Download size={16} />{t("hero.downloadCv")}</a> : null}</div>
+        </div>
+        <nav className="identity-navigation" aria-label="Portfolio sections">{navItems.map((item, index) => <a key={item} href={`#${item}`}><span>0{index + 1}</span>{t(`nav.${item}`)}</a>)}</nav>
+      </aside>
+      <div className="content-canvas">
       <header className={`topbar ${scrolled ? "topbar-scrolled" : ""}`}>
         <a href="#top" className="brand" aria-label="Portfolio home"><span className="brand-mark brand-monogram" aria-hidden="true"><i /><i /><i /></span><span>{name || "Portfolio"}</span></a>
         <nav className="desktop-nav" aria-label="Main navigation">
@@ -106,7 +122,7 @@ export default function Home() {
         {menuOpen ? <nav className="mobile-nav glass-panel" aria-label="Mobile navigation">{navItems.map(item => <a key={item} onClick={() => setMenuOpen(false)} href={`#${item}`}>{t(`nav.${item}`)}</a>)}</nav> : null}
       </header>
 
-      <section id="top" className="hero section-shell">
+      <section id="top" className="hero section-shell rail-hero">
         <div className="hero-grid" aria-hidden="true" />
         <Reveal className="hero-copy">
           {availability ? <div className="availability"><span className="availability-dot" />{availability}</div> : null}
@@ -116,18 +132,7 @@ export default function Home() {
           <div className="hero-actions">
             <a href="#projects" className="primary-button">{t("hero.viewWork")}<ArrowDownRight size={18} /></a>
             <a href="#contact" className="text-button">{t("hero.contact")}<ArrowUpRight size={17} /></a>
-            {profile?.cvUrl ? <a href={profile.cvUrl} download className="text-button">{t("hero.downloadCv")}<Download size={17} /></a> : null}
-          </div>
-        </Reveal>
-        <Reveal delay={0.12} className="hero-visual">
-          <div className="profile-composition">
-            <div className="orbit orbit-one" /><div className="orbit orbit-two" /><div className="orbit orbit-three" />
-            <div className="portrait-card glass-panel">
-              {profile?.avatarUrl ? <img src={profile.avatarUrl} alt={name || "Profile"} /> : <div className="avatar-fallback"><span>{initials}</span></div>}
-              <div className="portrait-meta"><span>01 / PROFILE</span><strong>{headline || ""}</strong><i /></div>
-            </div>
-            <div className="floating-chip chip-code"><Code2 size={16} /><span>.NET / React</span></div>
-            <div className="floating-chip chip-db"><Database size={16} /><span>DB-first</span></div>
+            {profile?.cvUrl ? <a href={profile.cvUrl} target="_blank" rel="noreferrer" className="text-button">{t("hero.downloadCv")}<Download size={17} /></a> : null}
           </div>
         </Reveal>
         <a className="scroll-cue" href="#about"><span>{t("hero.scroll")}</span><i /></a>
@@ -163,12 +168,13 @@ export default function Home() {
       </section>
 
       <section id="contact" className="section-shell content-section contact-section">
-        <Reveal><div className="contact-wrap"><div><SectionHeading index="05" eyebrow={t("contact.label")} title={t("contact.title")} copy={t("contact.copy")} /><div className="contact-links">{profile?.email ? <a href={`mailto:${profile.email}`}><Mail size={17} />{profile.email}</a> : null}{profile?.linkedinUrl ? <a href={profile.linkedinUrl} target="_blank" rel="noreferrer"><Linkedin size={17} />LinkedIn</a> : null}{profile?.githubUrl ? <a href={profile.githubUrl} target="_blank" rel="noreferrer"><Github size={17} />GitHub</a> : null}</div></div>
+        <Reveal><div className="contact-wrap"><div><SectionHeading index="05" eyebrow={t("contact.label")} title={t("contact.title")} copy={t("contact.copy")} /><div className="contact-links">{profile?.email ? <a href={`mailto:${profile.email}`}><Mail size={17} />{profile.email}</a> : null}{profile?.phone ? <a href={`tel:${profile.phone.replace(/\s+/g, "")}`}><Phone size={17} />{profile.phone}</a> : null}{profile?.linkedinUrl ? <a href={profile.linkedinUrl} target="_blank" rel="noreferrer"><Linkedin size={17} />LinkedIn</a> : null}{profile?.githubUrl ? <a href={profile.githubUrl} target="_blank" rel="noreferrer"><Github size={17} />GitHub</a> : null}{profile?.instagramUrl ? <a href={profile.instagramUrl} target="_blank" rel="noreferrer"><Instagram size={17} />Instagram</a> : null}</div></div>
           <form className="contact-form glass-panel" onSubmit={handleSubmit}><div className="form-row"><label>{t("contact.name")}<input required value={form.senderName} onChange={event => setForm(current => ({ ...current, senderName: event.target.value }))} /></label><label>{t("contact.email")}<input type="email" required value={form.senderEmail} onChange={event => setForm(current => ({ ...current, senderEmail: event.target.value }))} /></label></div><label>{t("contact.subject")}<input required value={form.subject} onChange={event => setForm(current => ({ ...current, subject: event.target.value }))} /></label><label>{t("contact.message")}<textarea required rows={5} value={form.body} onChange={event => setForm(current => ({ ...current, body: event.target.value }))} /></label><button className="primary-button" disabled={message.isPending}>{message.isPending ? t("contact.sending") : t("contact.send")}<Send size={17} /></button></form>
         </div></Reveal>
       </section>
 
-      <footer className="footer section-shell"><a href="#top" className="brand"><span className="brand-mark brand-monogram" aria-hidden="true"><i /><i /><i /></span><span>{name || "Portfolio"}</span></a><p>{t("footer.built")}</p><div className="footer-links">{profile?.cvUrl ? <a href={profile.cvUrl} download className="footer-dashboard">{t("footer.downloadCv")}<Download size={15} /></a> : null}<a href="/admin" className="footer-dashboard">{t("footer.dashboard")}<ArrowUpRight size={15} /></a></div></footer>
+      <footer className="footer section-shell"><a href="#top" className="brand"><span className="brand-mark brand-monogram" aria-hidden="true"><i /><i /><i /></span><span>{name || "Portfolio"}</span></a><p>{t("footer.built")}</p><div className="footer-links">{profile?.cvUrl ? <a href={profile.cvUrl} target="_blank" rel="noreferrer" className="footer-dashboard">{t("footer.downloadCv")}<Download size={15} /></a> : null}<a href="/admin" className="footer-dashboard">{t("footer.dashboard")}<ArrowUpRight size={15} /></a></div></footer>
+      </div></div>
     </main>
   );
 }

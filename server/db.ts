@@ -32,6 +32,8 @@ const defaultProfile = {
   githubUrl: null,
   linkedinUrl: null,
   email: null,
+  phone: null,
+  instagramUrl: null,
   cvUrl: null,
   cvKey: null,
   avatarUrl: null,
@@ -107,7 +109,7 @@ type ProfileSaveInput = {
   availabilityEn: string; availabilityAr: string; bioEn: string; bioAr: string; locationEn: string; locationAr: string;
   educationEn: string; educationAr: string; trainingEn: string; trainingAr: string; skills: string[];
   avatarUrl?: string | null; avatarKey?: string | null; githubUrl?: string | null;
-  linkedinUrl?: string | null; email?: string | null; cvUrl?: string | null; cvKey?: string | null;
+  linkedinUrl?: string | null; email?: string | null; phone?: string | null; instagramUrl?: string | null; cvUrl?: string | null; cvKey?: string | null;
 };
 
 export async function saveProfile(values: ProfileSaveInput) {
@@ -121,6 +123,8 @@ export async function saveProfile(values: ProfileSaveInput) {
     githubUrl: values.githubUrl ?? null,
     linkedinUrl: values.linkedinUrl ?? null,
     email: values.email ?? null,
+    phone: values.phone ?? null,
+    instagramUrl: values.instagramUrl ?? null,
     cvUrl: values.cvUrl ?? null,
     cvKey: values.cvKey ?? null,
     skillsJson: JSON.stringify(values.skills),

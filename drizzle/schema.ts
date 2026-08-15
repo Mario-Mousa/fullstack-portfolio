@@ -34,6 +34,8 @@ export const portfolioProfiles = mysqlTable("portfolio_profiles", {
   githubUrl: varchar("githubUrl", { length: 500 }),
   linkedinUrl: varchar("linkedinUrl", { length: 500 }),
   email: varchar("email", { length: 320 }),
+  phone: varchar("phone", { length: 60 }),
+  instagramUrl: varchar("instagramUrl", { length: 500 }),
   cvUrl: varchar("cvUrl", { length: 500 }),
   cvKey: text("cvKey"),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
