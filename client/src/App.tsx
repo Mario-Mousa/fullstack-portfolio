@@ -6,6 +6,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import BrandLoader from "./components/BrandLoader";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Admin from "./pages/Admin";
+import AdminLogin from "./pages/AdminLogin";
 import Home from "./pages/Home";
 import { useEffect, useState } from "react";
 
@@ -13,6 +14,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/admin/login" component={AdminLogin} />
       <Route path="/admin" component={Admin} />
       <Route path="/admin/profile" component={Admin} />
       <Route path="/admin/projects" component={Admin} />

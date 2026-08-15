@@ -25,3 +25,27 @@ History verification completed through `history.back()`: the URL returned from `
 Post-refactor verification confirmed the active work tab remains stable in the dark palette with the sticky identity rail present. The profile photo lightbox also opens correctly over the dark tab workspace, retaining the blurred backdrop and modal controls.
 
 The photo modal also dismisses with Escape and returns to the active work panel cleanly. A phone-viewport capture confirms the short loader preserves its centered, readable form before the responsive workspace handoff; the tab layout’s mobile breakpoint removes the desktop sticky constraint and stacks the rail above content.
+
+Owner-dashboard login verification: the public dashboard path now has a dedicated, visually consistent sign-in screen with email, password, password-visibility, submit, and return-to-site controls after the branded preloader.
+
+Credential login verification succeeded with the supplied owner email and password. The successful endpoint response minted the owner session and opened the protected dashboard shell with its existing Overview, Profile, Projects, Certificates, and Messages controls.
+
+The post-login owner session was confirmed at `/admin`, where protected dashboard statistics and all management navigation rendered under the owner identity. The sign-out control was then triggered for the next security check.
+
+The dashboard sign-out behavior now explicitly routes to `/admin/login` after the server logout mutation resolves, avoiding a stale owner shell after a session is cleared.
+
+The public About route continues to enter through the branded loader before mounting tab content; the next interaction verifies the repaired language switch once the tab is visible.
+
+About-language verification succeeded: the visible language control switched the active About tab from Arabic RTL to English LTR without navigating away or altering the selected tab. The wider About grid keeps the single biography block readable with fewer lines on desktop.
+
+Security verification found that a direct visit to `/admin/login` while an owner session remains active returns to `/admin`, as intended for an already authenticated owner. The sign-out action itself requires a final implementation-level review before the completed behavior is recorded.
+
+Sign-out verification now succeeded: the actual sidebar action cleared the owner session and routed from `/admin` to `/admin/login`, which rendered the credential form. The earlier false-negative check had targeted the preview wrapper rather than the interactive sidebar control.
+
+An invalid email and password were submitted from the credential form while no owner session was present. The next interface check validates the user-facing rejection message and confirms that the route stays on `/admin/login`.
+
+Narrow-viewport capture confirmed the authenticated dashboard reduces to a compact mobile header and single-column cards without horizontal overflow. The full-page capture of public About did not expose content because the screenshot mechanism suppresses fixed loader chrome during the initial loading interval, so this capture is not used as evidence for the content layout.
+
+The interactive About route successfully rendered after its intended brief loader, preserving the single wide English biography, active About tab, identity rail, and bilingual switch. The mobile-screen capture limitation affects only the automated full-page public-page snapshot, not this interactive rendering.
+
+Final mobile verification used a controlled 375 × 812 viewport after the loader completed. About rendered the stacked identity card, horizontally scrollable tab navigator, compact top bar, and active About content without horizontal page overflow. The `/admin/login` credential form rendered as a single readable card with full-width email/password inputs, password visibility control, submit action, and return link. The evidence captures are retained in the sandbox screenshots directory.

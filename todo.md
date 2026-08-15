@@ -48,3 +48,10 @@
 - [x] Remove duplicated biography copy from the About tab and retain a single clear introduction.
 - [x] Verify the refined About tab and profile rail at desktop and mobile sizes, then save the update checkpoint.
 - [x] Adjust and re-verify the enlarged profile portrait within the mobile identity-rail grid, then save the final refinement checkpoint.
+- [x] Restore the About-tab language control and verify English/Arabic switching persists correctly.
+- [x] Widen the About biography presentation to reduce line count while preserving readable mobile behavior.
+- [x] Add server-validated credential login and a secure session gate for the owner dashboard.
+- [x] Route the public Owner dashboard action through the login page before protected dashboard access.
+- [x] Verify correct and incorrect credentials, sign-out, About language switching, and responsive layout before saving the update checkpoint.
+- [x] Re-verify the widened About view and owner credential screen at a narrow/mobile viewport after the final updates.
+- [x] Save and publish the final verified credential-login and About-layout checkpoint.

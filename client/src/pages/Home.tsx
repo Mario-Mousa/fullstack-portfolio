@@ -85,10 +85,12 @@ export default function Home() {
     return () => { window.removeEventListener("popstate", syncTabWithUrl); window.removeEventListener("hashchange", syncTabWithUrl); };
   }, []);
 
-  const changeLanguage = () => {
+  const changeLanguage = async () => {
     const next = isArabic ? "en" : "ar";
     localStorage.setItem("portfolio-language", next);
-    i18n.changeLanguage(next);
+    await i18n.changeLanguage(next);
+    document.documentElement.lang = next;
+    document.documentElement.dir = next === "ar" ? "rtl" : "ltr";
   };
 
   const selectTab = (tabId: TabId) => {
@@ -203,7 +205,7 @@ export default function Home() {
       </motion.div>
       </AnimatePresence>
 
-      <footer className="footer section-shell"><button type="button" onClick={() => selectTab("about")} className="brand"><span className="brand-mark brand-monogram" aria-hidden="true"><i /><i /><i /></span><span>{name || "Portfolio"}</span></button><p>{t("footer.built")}</p><div className="footer-links">{profile?.cvUrl ? <a href={profile.cvUrl} target="_blank" rel="noreferrer" className="footer-dashboard">{t("footer.downloadCv")}<Download size={15} /></a> : null}<a href="/admin" className="footer-dashboard">{t("footer.dashboard")}<ArrowUpRight size={15} /></a></div></footer>
+      <footer className="footer section-shell"><button type="button" onClick={() => selectTab("about")} className="brand"><span className="brand-mark brand-monogram" aria-hidden="true"><i /><i /><i /></span><span>{name || "Portfolio"}</span></button><p>{t("footer.built")}</p><div className="footer-links">{profile?.cvUrl ? <a href={profile.cvUrl} target="_blank" rel="noreferrer" className="footer-dashboard">{t("footer.downloadCv")}<Download size={15} /></a> : null}<a href="/admin/login" className="footer-dashboard">{t("footer.dashboard")}<ArrowUpRight size={15} /></a></div></footer>
       </div></div>
     </main>
   );

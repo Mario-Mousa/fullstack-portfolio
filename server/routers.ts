@@ -1,9 +1,23 @@
 import { COOKIE_NAME } from "@shared/const";
+import { TRPCError } from "@trpc/server";
+import { timingSafeEqual } from "node:crypto";
+import { z } from "zod";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { ENV } from "./_core/env";
+import { sdk } from "./_core/sdk";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
+import * as db from "./db";
 import { adminRouter, portfolioRouter } from "./routers/portfolio";
+
+const dashboardLoginInput = z.object({ email: z.string().trim().email().max(320), password: z.string().min(1).max(256) });
+const DASHBOARD_SESSION_MS = 8 * 60 * 60 * 1000;
+
+function passwordsMatch(candidate: string, expected: string) {
+  const candidateBytes = Buffer.from(candidate);
+  const expectedBytes = Buffer.from(expected);
+  return candidateBytes.length === expectedBytes.length && timingSafeEqual(candidateBytes, expectedBytes);
+}
 
 export const appRouter = router({
   system: systemRouter,
@@ -14,6 +28,23 @@ export const appRouter = router({
     }),
     logout: publicProcedure.mutation(({ ctx }) => {
       ctx.res.clearCookie(COOKIE_NAME, { ...getSessionCookieOptions(ctx.req), maxAge: -1 });
+      return { success: true } as const;
+    }),
+  }),
+  dashboard: router({
+    login: publicProcedure.input(dashboardLoginInput).mutation(async ({ input, ctx }) => {
+      const configuredPassword = process.env.DASHBOARD_LOGIN_PASSWORD ?? "";
+      if (!configuredPassword || !passwordsMatch(input.password, configuredPassword)) {
+        throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid dashboard credentials." });
+      }
+      const profile = await db.getAdminProfile();
+      const ownerEmail = profile?.email?.trim().toLowerCase();
+      if (!ownerEmail || input.email.trim().toLowerCase() !== ownerEmail) {
+        throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid dashboard credentials." });
+      }
+      await db.upsertUser({ openId: ENV.ownerOpenId, name: profile?.nameEn || "Portfolio Owner", email: ownerEmail, loginMethod: "dashboard-password", role: "admin", lastSignedIn: new Date() });
+      const token = await sdk.createSessionToken(ENV.ownerOpenId, { expiresInMs: DASHBOARD_SESSION_MS, name: profile?.nameEn || "Portfolio Owner" });
+      ctx.res.cookie(COOKIE_NAME, token, { ...getSessionCookieOptions(ctx.req), maxAge: DASHBOARD_SESSION_MS });
       return { success: true } as const;
     }),
   }),
