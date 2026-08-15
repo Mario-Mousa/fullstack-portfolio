@@ -33,6 +33,7 @@ const defaultProfile = {
   linkedinUrl: null,
   email: null,
   cvUrl: null,
+  cvKey: null,
   avatarUrl: null,
   avatarKey: null,
 };
@@ -106,7 +107,7 @@ type ProfileSaveInput = {
   availabilityEn: string; availabilityAr: string; bioEn: string; bioAr: string; locationEn: string; locationAr: string;
   educationEn: string; educationAr: string; trainingEn: string; trainingAr: string; skills: string[];
   avatarUrl?: string | null; avatarKey?: string | null; githubUrl?: string | null;
-  linkedinUrl?: string | null; email?: string | null; cvUrl?: string | null;
+  linkedinUrl?: string | null; email?: string | null; cvUrl?: string | null; cvKey?: string | null;
 };
 
 export async function saveProfile(values: ProfileSaveInput) {
@@ -121,6 +122,7 @@ export async function saveProfile(values: ProfileSaveInput) {
     linkedinUrl: values.linkedinUrl ?? null,
     email: values.email ?? null,
     cvUrl: values.cvUrl ?? null,
+    cvKey: values.cvKey ?? null,
     skillsJson: JSON.stringify(values.skills),
   };
   await db.insert(portfolioProfiles).values(payload).onDuplicateKeyUpdate({ set: payload });

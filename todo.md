@@ -18,3 +18,6 @@
 - [x] Enforce frontend dashboard access through a server-derived owner identity, not the role alone.
 - [x] Add real validation and public-data API coverage to the automated test suite.
 - [x] Create a final verified project checkpoint for delivery.
+- [x] Add owner-only CV file upload with PDF validation and S3 storage.
+- [x] Add a public CV download button to the hero and footer using the uploaded file URL.
+- [x] Verify the uploaded CV download link end-to-end with a temporary test file, restore profile data, and save an updated checkpoint.

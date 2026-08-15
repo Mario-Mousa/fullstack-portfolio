@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "48beb510-e172-4e92-8007-e52392395451",
-  "prevId": "151372ce-ff00-434a-9baf-687225a87276",
+  "id": "b5dc404b-01d5-49be-a4cb-c211b5f67000",
+  "prevId": "48beb510-e172-4e92-8007-e52392395451",
   "tables": {
     "contact_messages": {
       "name": "contact_messages",
@@ -329,6 +329,13 @@
         "cvUrl": {
           "name": "cvUrl",
           "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "cvKey": {
+          "name": "cvKey",
+          "type": "text",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false

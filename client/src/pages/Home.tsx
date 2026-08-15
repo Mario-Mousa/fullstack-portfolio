@@ -1,7 +1,7 @@
 import { useTheme } from "@/contexts/ThemeContext";
 import { trpc } from "@/lib/trpc";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowDownRight, ArrowUpRight, Code2, Database, ExternalLink, Github, Globe2, GraduationCap, Languages, Linkedin, Mail, MapPin, Menu, Moon, Send, Sparkles, Sun, X } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, Code2, Database, Download, ExternalLink, Github, Globe2, GraduationCap, Languages, Linkedin, Mail, MapPin, Menu, Moon, Send, Sparkles, Sun, X } from "lucide-react";
 import { FormEvent, ReactNode, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -115,6 +115,7 @@ export default function Home() {
           <div className="hero-actions">
             <a href="#projects" className="primary-button">{t("hero.viewWork")}<ArrowDownRight size={18} /></a>
             <a href="#contact" className="text-button">{t("hero.contact")}<ArrowUpRight size={17} /></a>
+            {profile?.cvUrl ? <a href={profile.cvUrl} download className="text-button">{t("hero.downloadCv")}<Download size={17} /></a> : null}
           </div>
         </Reveal>
         <Reveal delay={0.12} className="hero-visual">
@@ -166,7 +167,7 @@ export default function Home() {
         </div></Reveal>
       </section>
 
-      <footer className="footer section-shell"><a href="#top" className="brand"><span className="brand-mark">&lt;/&gt;</span><span>{name || "Portfolio"}</span></a><p>{t("footer.built")}</p><a href="/admin" className="footer-dashboard">{t("footer.dashboard")}<ArrowUpRight size={15} /></a></footer>
+      <footer className="footer section-shell"><a href="#top" className="brand"><span className="brand-mark">&lt;/&gt;</span><span>{name || "Portfolio"}</span></a><p>{t("footer.built")}</p><div className="footer-links">{profile?.cvUrl ? <a href={profile.cvUrl} download className="footer-dashboard">{t("footer.downloadCv")}<Download size={15} /></a> : null}<a href="/admin" className="footer-dashboard">{t("footer.dashboard")}<ArrowUpRight size={15} /></a></div></footer>
     </main>
   );
 }

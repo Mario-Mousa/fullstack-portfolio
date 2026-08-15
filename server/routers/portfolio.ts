@@ -31,7 +31,13 @@ export const profileInput = z.object({
   trainingEn: z.string().trim().min(2).max(320), trainingAr: z.string().trim().min(2).max(320),
   avatarUrl: nullableText, avatarKey: nullableText, skills: z.array(z.string().trim().min(1).max(50)).max(30),
   githubUrl: nullableUrl, linkedinUrl: nullableUrl, email: z.union([z.string().email(), z.literal("")]).transform(value => value || null),
-  cvUrl: nullableUrl,
+  cvUrl: nullableUrl, cvKey: nullableText,
+});
+
+export const cvUploadInput = z.object({
+  base64: z.string().min(20).max(11_200_000),
+  fileName: z.string().min(1).max(180),
+  contentType: z.literal("application/pdf"),
 });
 
 const ownerProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -80,6 +86,12 @@ export const adminRouter = router({
       const key = `portfolio/${ctx.user.id}/${Date.now()}-${nanoid(8)}-${fileName}`;
       const buffer = Buffer.from(input.base64, "base64");
       const uploaded = await storagePut(key, buffer, input.contentType);
+      return uploaded;
+    }),
+    uploadCv: ownerProcedure.input(cvUploadInput).mutation(async ({ ctx, input }) => {
+      const fileName = input.fileName.replace(/[^a-zA-Z0-9._-]/g, "-").replace(/(?:\.pdf)?$/i, ".pdf");
+      const key = `portfolio/${ctx.user.id}/cv/${Date.now()}-${nanoid(8)}-${fileName}`;
+      const uploaded = await storagePut(key, Buffer.from(input.base64, "base64"), "application/pdf");
       return uploaded;
     }),
   }),

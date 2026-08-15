@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { appRouter } from "./routers";
 import type { TrpcContext } from "./_core/context";
-import { projectInput } from "./routers/portfolio";
+import { cvUploadInput, projectInput } from "./routers/portfolio";
 
 function createContext(user: TrpcContext["user"]): TrpcContext {
   return {
@@ -24,6 +24,13 @@ describe("portfolio contracts", () => {
       imageUrl: null, imageKey: null, githubUrl: "", liveUrl: "", featured: true, sortOrder: 1,
     });
     expect(result.success).toBe(true);
+  });
+
+  it("accepts PDF CV uploads and rejects a non-PDF file type", () => {
+    const pdf = cvUploadInput.safeParse({ base64: "a".repeat(20), fileName: "candidate-cv.pdf", contentType: "application/pdf" });
+    const image = cvUploadInput.safeParse({ base64: "a".repeat(20), fileName: "portrait.png", contentType: "image/png" });
+    expect(pdf.success).toBe(true);
+    expect(image.success).toBe(false);
   });
 
   it("blocks a signed-in non-owner before protected dashboard data is read", async () => {
