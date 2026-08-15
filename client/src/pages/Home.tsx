@@ -1,5 +1,7 @@
 import { useTheme } from "@/contexts/ThemeContext";
 import { trpc } from "@/lib/trpc";
+import BrandLoader from "@/components/BrandLoader";
+import ProfileLightbox from "@/components/ProfileLightbox";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowDownRight, ArrowUpRight, Code2, Database, Download, ExternalLink, Github, Globe2, GraduationCap, Instagram, Languages, Linkedin, Mail, MapPin, Menu, Moon, Phone, Send, Sparkles, Sun, X } from "lucide-react";
 import { FormEvent, ReactNode, useEffect, useMemo, useState } from "react";
@@ -35,7 +37,7 @@ function Reveal({ children, delay = 0, className = "" }: { children: ReactNode; 
 }
 
 function Skeleton() {
-  return <div className="min-h-screen grid place-items-center bg-[var(--canvas)] text-[var(--ink-muted)]"><div className="loading-orb" /></div>;
+  return <BrandLoader />;
 }
 
 export default function Home() {
@@ -91,12 +93,12 @@ export default function Home() {
 
   return (
     <main className="portfolio-shell signal-garden">
-      <div className="ambient-field" aria-hidden="true"><div className="ambient-orb ambient-orb-a" /><div className="ambient-orb ambient-orb-b" /><div className="ambient-orb ambient-orb-c" /><div className="ambient-grid" /><div className="ambient-stars" /></div>
+      <div className="ambient-field" aria-hidden="true"><div className="ambient-orb ambient-orb-a" /><div className="ambient-orb ambient-orb-b" /><div className="ambient-orb ambient-orb-c" /><div className="ambient-grid" /><div className="ambient-stars" /><div className="ambient-network"><svg viewBox="0 0 900 520" preserveAspectRatio="none"><path d="M32 90 170 165 302 88 465 196 604 122 782 211 882 98M78 420 216 338 386 432 528 318 690 410 860 336" /></svg><i /><i /><i /><i /><i /><i /></div></div>
       <div className="grain" aria-hidden="true" />
       <div className="portfolio-frame">
       <aside className="identity-rail" aria-label="Profile summary">
         <div className="identity-card glass-panel">
-          <div className="rail-portrait">{profile?.avatarUrl ? <img src={profile.avatarUrl} alt={name || "Profile"} /> : <span>{initials}</span>}<i className="rail-orbit rail-orbit-one" /><i className="rail-orbit rail-orbit-two" /></div>
+          <ProfileLightbox className="rail-portrait" imageUrl={profile?.avatarUrl} name={name || "Profile"} title={headline || ""} initials={initials} />
           <p className="rail-system">SYSTEM // 01</p><h2>{name || "Portfolio"}</h2><p className="rail-headline">{headline || ""}</p>
           {availability ? <div className="rail-availability"><span />{availability}</div> : null}
           <div className="rail-contact">

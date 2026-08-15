@@ -3,9 +3,11 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
+import BrandLoader from "./components/BrandLoader";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Admin from "./pages/Admin";
 import Home from "./pages/Home";
+import { useEffect, useState } from "react";
 
 function Router() {
   return (
@@ -23,12 +25,19 @@ function Router() {
 }
 
 export default function App() {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setLoading(false), 1180);
+    return () => window.clearTimeout(timer);
+  }, []);
+
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="dark" switchable>
         <TooltipProvider>
           <Toaster richColors position="top-center" />
-          <Router />
+          {loading ? <BrandLoader /> : <Router />}
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>

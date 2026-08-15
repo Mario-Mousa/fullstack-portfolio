@@ -34,3 +34,9 @@
 - [x] Recompose the public layout around a distinct fixed identity panel and navigable content panel inspired by the reference without copying it.
 - [x] Refine the animated background and palette for a more comfortable, polished visual atmosphere.
 - [x] Verify owner profile save and public data propagation for phone and Instagram, then save an updated checkpoint.
+- [x] Establish a disciplined shared dark/light visual system with one accent, premium typography, and consistent component tokens.
+- [x] Add an original branded loading screen with a short progress animation and reduced-motion behavior.
+- [x] Add public and dashboard profile-photo lightboxes with keyboard, outside-click, and backdrop-close support.
+- [x] Refine the public animated background into a lightweight network/constellation atmosphere with reduced-motion fallback.
+- [x] Apply the visual system consistently to public surfaces, controls, project and credential cards, and dashboard surfaces.
+- [x] Verify dark/light, English/Arabic RTL/LTR, desktop/mobile behavior, and save the polished update checkpoint.
