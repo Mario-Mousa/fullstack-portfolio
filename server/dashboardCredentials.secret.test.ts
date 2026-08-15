@@ -31,6 +31,25 @@ describe("dashboard credential secret", () => {
     expect(cookies).toHaveLength(1);
   });
 
+  it("rejects an owner-email mismatch without minting a dashboard session", async () => {
+    const cookies: unknown[] = [];
+    const ctx: TrpcContext = {
+      user: null,
+      req: { protocol: "https", headers: {} } as TrpcContext["req"],
+      res: {
+        cookie: (...args: unknown[]) => cookies.push(args),
+      } as TrpcContext["res"],
+    };
+    const caller = appRouter.createCaller(ctx);
+    await expect(
+      caller.dashboard.login({
+        email: "wrong-owner@example.com",
+        password: process.env.DASHBOARD_LOGIN_PASSWORD!,
+      })
+    ).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+    expect(cookies).toHaveLength(0);
+  });
+
   it("rejects an incorrect password without minting a dashboard session", async () => {
     const cookies: unknown[] = [];
     const ctx: TrpcContext = {

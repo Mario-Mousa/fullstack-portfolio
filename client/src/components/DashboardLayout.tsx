@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/useMobile";
 import { BadgeCheck, FolderKanban, LayoutDashboard, LogOut, Mail, PanelLeft, UserRound } from "lucide-react";
+import { useEffect } from "react";
 import { useLocation } from "wouter";
 
 const menuItems = [
@@ -16,8 +17,13 @@ const menuItems = [
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { loading, user } = useAuth();
-  if (loading) return <div className="admin-loading">Loading secure workspace…</div>;
-  if (!user) return <div className="admin-login"><div className="admin-login-card glass-panel"><span className="brand-mark">&lt;/&gt;</span><p className="eyebrow"><span />OWNER WORKSPACE</p><h1>Sign in to manage your portfolio.</h1><p>Authentication is handled through your owner password.</p><a href="/admin/login" className="admin-button">Go to sign in</a></div></div>;
+  const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    if (!loading && !user) setLocation("/admin/login");
+  }, [loading, user, setLocation]);
+
+  if (loading || !user) return <div className="admin-loading">Redirecting to secure sign in…</div>;
   if (!user.isOwner) return <div className="admin-login"><div className="admin-login-card glass-panel"><p className="eyebrow"><span />RESTRICTED</p><h1>This workspace is reserved for the portfolio owner.</h1><a className="admin-button" href="/">Return to public portfolio</a></div></div>;
 
   return <SidebarProvider><DashboardLayoutContent>{children}</DashboardLayoutContent></SidebarProvider>;
