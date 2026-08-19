@@ -119,11 +119,19 @@ Further production diagnostics showed a platform-authentication layer may still 
 
 Final published verification passed on the real sign-in form: after signing out, entering the supplied owner email and password redirected from `/admin/login` to `/admin` and rendered the protected owner workspace with Overview, Profile, Projects, Certificates, and Messages. The root cause was not the password; it was the unavailable external owner identity and a subsequent role reset during session refresh. The corrected flow uses the existing owner identity, preserves role updates, and authorizes the server-minted password session only for the configured owner email.
 
-The supplied login-failure recording was reviewed directly. It shows the supplied email, `[REDACTED]` password, a brief `Signing in…` submit state, and the generic “The email or password is incorrect.” message while remaining on the functional login screen. That behavior matches the production failure reproduced during this investigation: the UI collapsed an internal server-side session-provisioning failure into the same generic credential message, rather than showing an empty page, connectivity failure, or invalid submitted password.
+The supplied login-failure recording was reviewed directly. It shows the supplied owner email and password, a brief `Signing in…` submit state, and the generic “The email or password is incorrect.” message while remaining on the functional login screen. That behavior matches the production failure reproduced during this investigation: the UI collapsed an internal server-side session-provisioning failure into the same generic credential message, rather than showing an empty page, connectivity failure, or invalid submitted password.
 
 Live credential verification completed: submitting the owner email and configured password through the rendered login form redirected successfully to `/admin` and loaded the owner dashboard with the expected overview cards.
 
-The supplied recording confirms that the user entered the expected email and the password `[REDACTED]`, then received the generic rejection while remaining on the published login page. The same published login screen has now been loaded for direct reproduction against the production server.
+The supplied recording confirms that the user entered the expected owner email and password, then received the generic rejection while remaining on the published login page. The same published login screen has now been loaded for direct reproduction against the production server.
+
+## Security documentation rule
+
+Never record literal passwords, API keys, database connection strings, session secrets, or access tokens in project notes, tests, screenshots, commits, issue discussions, or user-visible logs. Reference protected values only by their environment-variable name and verify them through redacted, boolean-style tests.
+
+Mobile layout follow-up: the code now switches the narrow identity card to a vertical reading order matching the desktop card. Automated full-page capture showed only the loader/background, and the browser preview navigated away before content could be inspected; these captures are not considered visual verification evidence.
+
+Final phone verification after the development-service restart at a 390 × 844 viewport rendered the identity card successfully. The card displayed a full-width portrait area, followed by the system label, name, role, availability, the email/phone/location rows, and the social/CV links in that desktop-equivalent reading order. The prior mobile two-column split and the large blank space between profile items were absent.
 
 Published reproduction completed: the same email and password are accepted by the restarted development server but rejected by the published endpoint. This isolates the defect to the production credential configuration or production-only server environment, not client-side field entry or the credential form.
 

@@ -3819,6 +3819,53 @@ html[dir="rtl"] .signal-garden h3 {
     min-height: calc(100dvh + 6rem);
   }
 }
+/* Keep the desktop reading order on phones: portrait, name, role, contacts, then links. */
+@media (max-width: 800px) {
+  .signal-garden .identity-rail {
+    min-height: 0;
+  }
+  .signal-garden .identity-card {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    padding: 1rem;
+  }
+  .signal-garden .rail-portrait {
+    grid-row: auto;
+    width: 100%;
+    min-height: 0;
+    aspect-ratio: 4 / 3;
+    border-radius: 1rem;
+  }
+  .signal-garden .rail-system {
+    margin: 1.15rem 0 0.42rem;
+  }
+  .signal-garden .identity-card h2 {
+    font-size: 1.55rem;
+  }
+  .signal-garden .rail-headline {
+    min-height: 2.8em;
+    margin: 0.62rem 0 0;
+  }
+  .signal-garden .rail-availability {
+    margin: 1rem 0;
+  }
+  .signal-garden .rail-contact {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    padding-top: 1rem;
+  }
+  .signal-garden .rail-contact > a,
+  .signal-garden .rail-contact > span {
+    grid-template-columns: 24px minmax(0, 1fr);
+    font-size: 0.7rem;
+  }
+  .signal-garden .rail-socials {
+    margin-top: 0;
+    padding-top: 1rem;
+  }
+}
 /* About readability and owner credential sign-in */
 .signal-garden .tab-panel-about .about-grid {
   grid-template-columns: minmax(0, 1.7fr) minmax(260px, 0.7fr);
